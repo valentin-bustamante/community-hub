@@ -1,0 +1,34 @@
+{
+  "name": "frameworks-interoperabilidad",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n backend,frontend -c blue,green \"npm run develop -w backend\" \"npm run dev -w frontend\"",
+    "dev:backend": "npm run develop -w backend",
+    "dev:frontend": "npm run dev -w frontend",
+    "build": "npm run build --workspaces"
+  },
+  "allowScripts": {
+    "better-sqlite3@12.8.0": true,
+    "esbuild@0.28.2": true,
+    "esbuild@0.21.5": true,
+    "@swc/core@1.16.2": true
+  },
+  "devDependencies": {
+    "@swc/core": "1.16.2",
+    "concurrently": "^10.0.5"
+  },
+  "overrides": {
+    "@swc/core": "1.16.2",
+    "@strapi/utils": "5.55.1",
+    "@strapi/admin": "5.55.1",
+    "@strapi/data-transfer": "5.55.1",
+    "@strapi/logger": "5.55.1",
+    "@strapi/permissions": "5.55.1",
+    "@strapi/types": "5.55.1",
+    "@strapi/typescript-utils": "5.55.1",
+    "@strapi/database": "5.55.1"
+  }
+}
