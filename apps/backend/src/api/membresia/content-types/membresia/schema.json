@@ -1,0 +1,36 @@
+{
+  "kind": "collectionType",
+  "collectionName": "membresias",
+  "info": {
+    "singularName": "membresia",
+    "pluralName": "membresias",
+    "displayName": "Membresia"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "rol": {
+      "type": "enumeration",
+      "required": true,
+      "enum": [
+        "propietario",
+        "moderador",
+        "miembro"
+      ]
+    },
+    "usuario": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "membresias"
+    },
+    "comunidad": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::comunidad.comunidad",
+      "inversedBy": "membresias"
+    }
+  }
+}

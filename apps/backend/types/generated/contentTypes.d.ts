@@ -603,6 +603,48 @@ export interface ApiCommunityCommunity extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiComunidadComunidad extends Struct.CollectionTypeSchema {
+  collectionName: 'comunidades';
+  info: {
+    displayName: 'Comunidad';
+    pluralName: 'comunidades';
+    singularName: 'comunidad';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    codigoInvitacion: Schema.Attribute.String & Schema.Attribute.Unique;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    icono: Schema.Attribute.Media<
+      'images' | 'files' | 'videos' | 'audios',
+      true
+    >;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::comunidad.comunidad'
+    > &
+      Schema.Attribute.Private;
+    membresias: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::membresia.membresia'
+    >;
+    nombre: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 30;
+        minLength: 5;
+      }>;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiGlobalGlobal extends Struct.SingleTypeSchema {
   collectionName: 'globals';
   info: {
@@ -632,6 +674,80 @@ export interface ApiGlobalGlobal extends Struct.SingleTypeSchema {
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+  };
+}
+
+export interface ApiMembresiaMembresia extends Struct.CollectionTypeSchema {
+  collectionName: 'membresias';
+  info: {
+    displayName: 'Membresia';
+    pluralName: 'membresias';
+    singularName: 'membresia';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    comunidad: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::comunidad.comunidad'
+    >;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::membresia.membresia'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    rol: Schema.Attribute.Enumeration<['propietario', 'moderador', 'miembro']> &
+      Schema.Attribute.Required;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    usuario: Schema.Attribute.Relation<
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+  };
+}
+
+export interface ApiMensajeMensaje extends Struct.CollectionTypeSchema {
+  collectionName: 'mensajes';
+  info: {
+    displayName: 'Mensaje';
+    pluralName: 'mensajes';
+    singularName: 'mensaje';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    contenido: Schema.Attribute.Text &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 3000;
+        minLength: 1;
+      }>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::mensaje.mensaje'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    usuario: Schema.Attribute.Relation<
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
   };
 }
 
@@ -1091,7 +1207,6 @@ export interface PluginUsersPermissionsUser
   };
   options: {
     draftAndPublish: false;
-    timestamps: true;
   };
   attributes: {
     blocked: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
@@ -1111,6 +1226,11 @@ export interface PluginUsersPermissionsUser
       'plugin::users-permissions.user'
     > &
       Schema.Attribute.Private;
+    membresias: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::membresia.membresia'
+    >;
+    mensajes: Schema.Attribute.Relation<'oneToMany', 'api::mensaje.mensaje'>;
     password: Schema.Attribute.Password &
       Schema.Attribute.Private &
       Schema.Attribute.SetMinMaxLength<{
@@ -1151,7 +1271,10 @@ declare module '@strapi/strapi' {
       'api::author.author': ApiAuthorAuthor;
       'api::category.category': ApiCategoryCategory;
       'api::community.community': ApiCommunityCommunity;
+      'api::comunidad.comunidad': ApiComunidadComunidad;
       'api::global.global': ApiGlobalGlobal;
+      'api::membresia.membresia': ApiMembresiaMembresia;
+      'api::mensaje.mensaje': ApiMensajeMensaje;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
       'plugin::i18n.locale': PluginI18NLocale;

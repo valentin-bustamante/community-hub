@@ -1,0 +1,27 @@
+{
+  "kind": "collectionType",
+  "collectionName": "mensajes",
+  "info": {
+    "singularName": "mensaje",
+    "pluralName": "mensajes",
+    "displayName": "Mensaje"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "contenido": {
+      "type": "text",
+      "minLength": 1,
+      "maxLength": 3000,
+      "required": true
+    },
+    "usuario": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "mensajes"
+    }
+  }
+}
