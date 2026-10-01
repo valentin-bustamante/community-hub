@@ -1,0 +1,42 @@
+{
+  "kind": "collectionType",
+  "collectionName": "comunidades",
+  "info": {
+    "singularName": "comunidad",
+    "pluralName": "comunidades",
+    "displayName": "Comunidad"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "nombre": {
+      "type": "string",
+      "minLength": 5,
+      "maxLength": 30,
+      "required": true
+    },
+    "codigoInvitacion": {
+      "type": "string",
+      "required": false,
+      "unique": true
+    },
+    "icono": {
+      "type": "media",
+      "multiple": true,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "membresias": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::membresia.membresia",
+      "mappedBy": "comunidad"
+    }
+  }
+}
