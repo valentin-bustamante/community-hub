@@ -1,0 +1,27 @@
+{
+  "kind": "collectionType",
+  "collectionName": "canales",
+  "info": {
+    "singularName": "canal",
+    "pluralName": "canales",
+    "displayName": "Canal"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "nombre": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 20,
+      "required": true
+    },
+    "mensajes": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::mensaje.mensaje",
+      "mappedBy": "canal"
+    }
+  }
+}

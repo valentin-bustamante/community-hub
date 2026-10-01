@@ -9,6 +9,10 @@
           "id": "grp_1547265b761f4ea3aeacc500",
           "children": [
             {
+              "uid": "api::canal.canal",
+              "type": "contentType"
+            },
+            {
               "uid": "api::comunidad.comunidad",
               "type": "contentType"
             },

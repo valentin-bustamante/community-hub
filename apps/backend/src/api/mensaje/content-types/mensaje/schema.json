@@ -22,6 +22,12 @@
       "relation": "manyToOne",
       "target": "plugin::users-permissions.user",
       "inversedBy": "mensajes"
+    },
+    "canal": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::canal.canal",
+      "inversedBy": "mensajes"
     }
   }
 }
