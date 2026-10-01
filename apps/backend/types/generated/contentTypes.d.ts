@@ -544,6 +544,37 @@ export interface ApiAuthorAuthor extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiCanalCanal extends Struct.CollectionTypeSchema {
+  collectionName: 'canales';
+  info: {
+    displayName: 'Canal';
+    pluralName: 'canales';
+    singularName: 'canal';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<'oneToMany', 'api::canal.canal'> &
+      Schema.Attribute.Private;
+    mensajes: Schema.Attribute.Relation<'oneToMany', 'api::mensaje.mensaje'>;
+    nombre: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 20;
+        minLength: 1;
+      }>;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiCategoryCategory extends Struct.CollectionTypeSchema {
   collectionName: 'categories';
   info: {
@@ -576,33 +607,6 @@ export interface ApiCategoryCategory extends Struct.CollectionTypeSchema {
   };
 }
 
-export interface ApiCommunityCommunity extends Struct.CollectionTypeSchema {
-  collectionName: 'communities';
-  info: {
-    displayName: 'Community';
-    pluralName: 'communities';
-    singularName: 'community';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::community.community'
-    > &
-      Schema.Attribute.Private;
-    publishedAt: Schema.Attribute.DateTime;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-  };
-}
-
 export interface ApiComunidadComunidad extends Struct.CollectionTypeSchema {
   collectionName: 'comunidades';
   info: {
@@ -618,10 +622,7 @@ export interface ApiComunidadComunidad extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    icono: Schema.Attribute.Media<
-      'images' | 'files' | 'videos' | 'audios',
-      true
-    >;
+    icono: Schema.Attribute.Media<'images', true>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -725,6 +726,7 @@ export interface ApiMensajeMensaje extends Struct.CollectionTypeSchema {
     draftAndPublish: false;
   };
   attributes: {
+    canal: Schema.Attribute.Relation<'manyToOne', 'api::canal.canal'>;
     contenido: Schema.Attribute.Text &
       Schema.Attribute.Required &
       Schema.Attribute.SetMinMaxLength<{
@@ -1269,8 +1271,8 @@ declare module '@strapi/strapi' {
       'api::about.about': ApiAboutAbout;
       'api::article.article': ApiArticleArticle;
       'api::author.author': ApiAuthorAuthor;
+      'api::canal.canal': ApiCanalCanal;
       'api::category.category': ApiCategoryCategory;
-      'api::community.community': ApiCommunityCommunity;
       'api::comunidad.comunidad': ApiComunidadComunidad;
       'api::global.global': ApiGlobalGlobal;
       'api::membresia.membresia': ApiMembresiaMembresia;
