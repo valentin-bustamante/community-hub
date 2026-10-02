@@ -4,7 +4,7 @@ Trabajo Práctico 2 de Framework e Interoperabilidad: aplicación web basada en 
 
 ## Objetivo y alcance
 
-Administrar servidores, canales y anuncios desde Strapi y presentarlos en una interfaz personalizada con Next.js. El desarrollo comprende T-01 a T-17. T-18, T-19 y T-20 se gestionan fuera de este repositorio.
+Administrar servidores, canales y membresías desde Strapi y presentarlos en una interfaz personalizada con Next.js. El desarrollo comprende T-01 a T-17 y [T-21 Autenticación](https://github.com/valentin-bustamante/community-hub/issues/22). T-18, T-19 y T-20 se gestionan fuera de este repositorio.
 
 - [Tablero del TP2](https://github.com/users/valentin-bustamante/projects/1)
 - [Issues y criterios de aceptación](https://github.com/valentin-bustamante/community-hub/issues)
@@ -18,7 +18,8 @@ Esta etapa prepara el repositorio y el flujo Git (T-01). El frontend se iniciali
 | Componente | Tecnología / responsabilidad | Tarea |
 | --- | --- | --- |
 | Frontend | Next.js: rutas, componentes, navegación y consumo de datos | T-02 |
-| CMS | Strapi: modelos Server, Channel y Announcement y API | T-05 a T-09 |
+| CMS | Strapi: modelos Server, Channel y Membership y API | T-05 a T-09 |
+| Autenticación | Inicio y cierre de sesión, identidad de usuario y permisos por membresía | T-21 (#22) |
 | Interfaz | Template de chat, documentado antes de su adaptación | T-03, T-04, T-13 a T-15 |
 
 Estructura acordada como punto de partida; las carpetas de aplicación se crearán al inicializar cada componente:
