@@ -22,6 +22,12 @@
       "relation": "oneToMany",
       "target": "api::mensaje.mensaje",
       "mappedBy": "canal"
+    },
+    "comunidad": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::comunidad.comunidad",
+      "inversedBy": "canales"
     }
   }
 }

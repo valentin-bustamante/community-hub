@@ -555,6 +555,10 @@ export interface ApiCanalCanal extends Struct.CollectionTypeSchema {
     draftAndPublish: false;
   };
   attributes: {
+    comunidad: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::comunidad.comunidad'
+    >;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -618,11 +622,12 @@ export interface ApiComunidadComunidad extends Struct.CollectionTypeSchema {
     draftAndPublish: false;
   };
   attributes: {
+    canales: Schema.Attribute.Relation<'oneToMany', 'api::canal.canal'>;
     codigoInvitacion: Schema.Attribute.String & Schema.Attribute.Unique;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    icono: Schema.Attribute.Media<'images', true>;
+    icono: Schema.Attribute.Media<'images'>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',

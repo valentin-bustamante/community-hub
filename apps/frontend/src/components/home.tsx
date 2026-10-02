@@ -2,21 +2,11 @@
 
 // ** Imports: React & Hooks **
 import React, { useState } from "react"
+import { useRouter } from "next/navigation"
+
+import { getUsername, logout } from "@/lib/auth"
 
 // ** UI Components **
-import {
-  SidebarInset,
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarFooter,
-  useSidebar,
-} from "@/components/blocks/sidebar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -45,14 +35,11 @@ import {
   Camera,
   ChartBarIncreasing,
   ChevronUp,
-  CircleFadingPlus,
   CircleOff,
   CircleUserRound,
   File,
   Image,
   ListFilter,
-  Menu,
-  MessageCircle,
   MessageSquareDashed,
   MessageSquareDot,
   Mic,
@@ -60,7 +47,6 @@ import {
   Phone,
   Search,
   Send,
-  Settings,
   Smile,
   SquarePen,
   Star,
@@ -175,87 +161,15 @@ const contactList = [
   },
 ]
 
-// ** Sidebar Menu Items **
-const menuItems = [
-  { title: "Messages", url: "#", icon: MessageCircle },
-  { title: "Phone", url: "#", icon: Phone },
-  { title: "Status", url: "#", icon: CircleFadingPlus },
-]
-
 // ** Home Component **
 export const Home = () => {
-  const { toggleSidebar } = useSidebar()
+  const router = useRouter()
+  const [username] = useState(getUsername)
   const [currentChat, setCurrentChat] = useState(contactList[0])
 
   return (
     <>
-      {/* Sidebar */}
-      <Sidebar variant="floating" collapsible="icon">
-        <SidebarContent>
-          <SidebarGroup>
-            <SidebarGroupLabel>Navigate</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton onClick={toggleSidebar} asChild>
-                    <span>
-                      <Menu />
-                    </span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-
-                {menuItems.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild>
-                      <a href={item.url}>
-                        <item.icon />
-                        <span>{item.title}</span>
-                      </a>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        </SidebarContent>
-
-        <SidebarFooter>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton>
-                <Settings /> Settings
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <SidebarMenuButton>
-                    <User2 /> Manoj Rayi
-                    <ChevronUp className="ml-auto" />
-                  </SidebarMenuButton>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  side="top"
-                  className="w-[--radix-popper-anchor-width]"
-                >
-                  <DropdownMenuItem>
-                    <a href="https://github.com/rayimanoj8/">Account</a>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <span>Back Up</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <span>Sign out</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarFooter>
-      </Sidebar>
-
       {/* Main Content */}
-      <SidebarInset>
         <ResizablePanelGroup direction="horizontal" className="h-screen">
           {/* Left Panel - Chat List */}
           <ResizablePanel defaultSize={25} minSize={20} className="flex-grow">
@@ -326,7 +240,7 @@ export const Home = () => {
               </div>
 
               {/* Contact List */}
-              <ScrollArea className="flex-grow">
+              <ScrollArea className="flex-grow min-h-0">
                 {contactList.map((contact, index) => (
                   <button
                     key={index}
@@ -346,6 +260,27 @@ export const Home = () => {
                   </button>
                 ))}
               </ScrollArea>
+
+              <div className="flex items-center gap-1 border-t p-2">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="flex-grow justify-start">
+                      <User2 /> {username}
+                      <ChevronUp className="ml-auto" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent side="top" align="start">
+                    <DropdownMenuItem
+                      onSelect={() => {
+                        logout()
+                        router.replace("/login")
+                      }}
+                    >
+                      Sign out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </div>
           </ResizablePanel>
 
@@ -423,7 +358,6 @@ export const Home = () => {
             </div>
           </ResizablePanel>
         </ResizablePanelGroup>
-      </SidebarInset>
     </>
   )
 }
