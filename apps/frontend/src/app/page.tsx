@@ -1,10 +1,10 @@
-import { SidebarProvider } from "@/components/blocks/sidebar"
+import { AuthGuard } from "@/components/auth-guard"
 import { Home } from "@/components/home"
 
 export default function Page() {
   return (
-    <SidebarProvider>
+    <AuthGuard>
       <Home />
-    </SidebarProvider>
+    </AuthGuard>
   )
 }
