@@ -6,6 +6,14 @@ const permisosAutenticado = [
   'api::comunidad.comunidad.find',
   'api::comunidad.comunidad.findOne',
   'api::membresia.membresia.find',
+  'api::membresia.membresia.findOne',
+  'api::membresia.membresia.update',
+  'api::membresia.membresia.delete',
+  'api::canal.canal.find',
+  'api::canal.canal.findOne',
+  'api::canal.canal.create',
+  'api::canal.canal.update',
+  'api::canal.canal.delete',
 ];
 
 export default {

@@ -42,12 +42,10 @@ type Props = {
 export function ComunidadDialog({ mode, onClose, onDone }: Props) {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
-  const [codigo, setCodigo] = useState("")
   const text = copy[mode ?? "crear"]
 
   function close() {
     setError("")
-    setCodigo("")
     onClose()
   }
 
@@ -57,14 +55,8 @@ export function ComunidadDialog({ mode, onClose, onDone }: Props) {
     setError("")
     setLoading(true)
     try {
-      if (mode === "crear") {
-        const comunidad = await crearComunidad(valor)
-        onDone(comunidad)
-        setCodigo(comunidad.codigoInvitacion)
-      } else {
-        onDone(await unirseAComunidad(valor))
-        close()
-      }
+      onDone(await (mode === "crear" ? crearComunidad(valor) : unirseAComunidad(valor)))
+      close()
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error inesperado")
     } finally {
@@ -75,47 +67,30 @@ export function ComunidadDialog({ mode, onClose, onDone }: Props) {
   return (
     <Dialog open={mode !== null} onOpenChange={(open) => !open && close()}>
       <DialogContent>
-        {codigo ? (
-          <div className="flex flex-col gap-4">
-            <DialogHeader>
-              <DialogTitle>Comunidad creada</DialogTitle>
-              <DialogDescription>
-                Compartí este código para que otros se unan. Guardalo: no se vuelve a mostrar.
-              </DialogDescription>
-            </DialogHeader>
-            <p className="rounded-md bg-secondary p-3 text-center font-mono text-lg tracking-widest select-all">
-              {codigo}
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <DialogHeader>
+            <DialogTitle>{text.title}</DialogTitle>
+            <DialogDescription>{text.description}</DialogDescription>
+          </DialogHeader>
+          <Input
+            name="valor"
+            required
+            minLength={mode === "crear" ? 5 : undefined}
+            maxLength={mode === "crear" ? 30 : undefined}
+            placeholder={text.placeholder}
+            autoComplete="off"
+          />
+          {error && (
+            <p role="alert" className="text-sm text-destructive">
+              {error}
             </p>
-            <DialogFooter>
-              <Button onClick={close}>Listo</Button>
-            </DialogFooter>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <DialogHeader>
-              <DialogTitle>{text.title}</DialogTitle>
-              <DialogDescription>{text.description}</DialogDescription>
-            </DialogHeader>
-            <Input
-              name="valor"
-              required
-              minLength={mode === "crear" ? 5 : undefined}
-              maxLength={mode === "crear" ? 30 : undefined}
-              placeholder={text.placeholder}
-              autoComplete="off"
-            />
-            {error && (
-              <p role="alert" className="text-sm text-destructive">
-                {error}
-              </p>
-            )}
-            <DialogFooter>
-              <Button type="submit" disabled={loading}>
-                {loading ? text.loading : text.submit}
-              </Button>
-            </DialogFooter>
-          </form>
-        )}
+          )}
+          <DialogFooter>
+            <Button type="submit" disabled={loading}>
+              {loading ? text.loading : text.submit}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   )

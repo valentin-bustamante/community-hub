@@ -710,7 +710,7 @@ export interface ApiMembresiaMembresia extends Struct.CollectionTypeSchema {
     > &
       Schema.Attribute.Private;
     publishedAt: Schema.Attribute.DateTime;
-    rol: Schema.Attribute.Enumeration<['propietario', 'moderador', 'miembro']> &
+    rol: Schema.Attribute.Enumeration<['propietario', 'miembro']> &
       Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
