@@ -5,7 +5,10 @@ import { useRouter } from "next/navigation"
 
 import { getToken } from "@/lib/auth"
 
-const subscribe = () => () => {}
+const subscribe = (onStoreChange: () => void) => {
+  window.addEventListener("community-hub:session-expired", onStoreChange)
+  return () => window.removeEventListener("community-hub:session-expired", onStoreChange)
+}
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter()
