@@ -39,15 +39,18 @@ código.
 | DATA-02 | Probar valores opcionales, contenido largo y colecciones vacías. | No hay errores bloqueantes; los valores inválidos se rechazan con un mensaje entendible. | Parcial; colección vacía y nombre de canal inválido probados. Contenido largo y campos opcionales pendientes. |
 | NET-01 | Detener Strapi y cargar la lista de comunidades. | Se informa que no se pudo conectar con el CMS; la solicitud no aparenta éxito. | Pasó en navegador; se mostró el error de conexión esperado. |
 | UI-01 | Recorrer formularios con teclado y revisar una pantalla angosta. | Los controles tienen nombre accesible, el foco es visible y la navegación no se desborda. | Parcial; Tab recorrió email, contraseña y botón; a 375 px no hubo desborde horizontal. No se hizo recorrido completo de todos los controles. |
-| UI-02 | Seleccionar una comunidad y revisar canales, miembros y mensajes. | El contenido corresponde al contexto seleccionado y muestra los estados pertinentes. | Bloqueado para canales y miembros: esas vistas aún no están implementadas. La pantalla de comunidad muestra el estado de mensajes vacío. |
+| CAN-UI-01 | Crear dos comunidades con canales distintos, cambiar entre ellas y seleccionar un canal. | Se consultan los canales de la comunidad activa; al cambiar de contexto no se muestran canales de la comunidad anterior y la selección queda visible. | Pasó desde Next.js: la comunidad A mostró `general` y `pruebas`, la B solo `general`; cambiar el canal actualizó el encabezado. |
+| CAN-UI-02 | Detener Strapi y seleccionar otra comunidad. | La lista de canales muestra un error de conexión y no presenta datos como si la consulta hubiera tenido éxito. | Pasó en navegador; se mostró el error de conexión del cliente compartido. |
+| UI-02 | Seleccionar una comunidad y revisar canales, miembros y mensajes. | El contenido corresponde al contexto seleccionado y muestra los estados pertinentes. | Pasó para canales: lista, cambio de canal y aislamiento visual entre dos comunidades. La interfaz de miembros aún no está disponible; los mensajes muestran el estado vacío. |
 
 ## Resultado de ejecución
 
 Los registros se hicieron el 2026-10-03 con una base SQLite descartable y dos
 cuentas creadas solo para esta prueba. También se usó una tercera cuenta sin
 membresías para comprobar la denegación de acceso. Los canales creados para
-probar permisos se eliminaron al terminar. No se guardaron credenciales,
-códigos de invitación ni tokens.
+probar permisos y el cambio de contexto se eliminaron al terminar. La base
+local se descartó. No se guardaron credenciales, códigos de invitación ni
+tokens.
 
 La primera prueba de sesión vencida encontró que la interfaz conservaba un JWT
 inválido. Se corrigió para borrar la sesión y redirigir al inicio de sesión
@@ -55,9 +58,9 @@ cuando Strapi responde `401`, y luego se repitió el caso con resultado correcto
 
 ## Limitaciones conocidas al iniciar la prueba
 
-- T-12, T-13, T-14 y T-15 siguen abiertas. La interfaz todavía no ofrece el
-  recorrido visual de canales ni la gestión y presentación de membresías;
-  UI-02 queda bloqueado hasta que esas tareas se integren.
+- T-12 está cerrada; T-13, T-14 y T-15 siguen abiertas. El frontend ya muestra
+  canales por comunidad, pero todavía no ofrece una vista de miembros ni una
+  integración de mensajes.
 - No hay un runner de pruebas funcionales configurado para el frontend. La
   cobertura de interfaz se registra como prueba manual reproducible.
 - La prueba de credenciales incorrectas devuelve un mensaje en inglés. Conviene
