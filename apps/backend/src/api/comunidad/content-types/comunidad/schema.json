@@ -19,6 +19,8 @@
     },
     "codigoInvitacion": {
       "type": "string",
+      "private": true,
+      "searchable": false,
       "required": false,
       "unique": true
     },
