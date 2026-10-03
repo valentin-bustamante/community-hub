@@ -4,9 +4,9 @@ Dejo acá registrado el punto de partida de la interfaz antes de seguir adaptán
 
 ## Procedencia y licencia
 
-El código original conserva imágenes servidas desde el CDN de [21st.dev](https://21st.dev/) y una cuenta de GitHub (`rayimanoj8`) en el menú de usuario. Eso sirve como pista de procedencia, pero el commit no incluye el enlace a la ficha específica del componente ni una atribución explícita. Por ese motivo no presento a esa cuenta como autor confirmado.
+El template figura en 21st.dev como `chat-template`, variante `whatsapp-mock`, de Manoj (`rayimanoj8`) y con licencia MIT. La [ficha específica](https://21st.dev/community/components/rayimanoj8/chat-template/whatsapp-mock) y el [registro del componente](https://21st.dev/r/rayimanoj8/chat-template) aparecen en el catálogo; al verificarlos, el sitio devolvió 404. El código que quedó en el repo también enlaza la cuenta `rayimanoj8` en el menú original. Como referencia adicional, la [barra lateral de WhatsApp](https://21st.dev/@rayimanoj8/components/whatsapp-sidebar) tiene una ficha activa en 21st.dev con el mismo autor y licencia.
 
-Tampoco encontré una licencia del template en el código ni en el commit. La licencia de las dependencias no alcanza para determinar la licencia de este diseño; antes de reutilizarlo fuera del TP habría que localizar la ficha original o consultar al proveedor.
+La licencia indicada para el componente es MIT. No encontré una licencia para las fotografías servidas desde el CDN, así que no las incluyo en las capturas.
 
 ## Qué incluía el original
 
