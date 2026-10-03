@@ -11,7 +11,7 @@ Administrar servidores, canales y membresías desde Strapi y presentarlos en una
 
 ## Estado del proyecto
 
-Esta etapa prepara el repositorio y el flujo Git (T-01). El frontend se inicializa en T-02 y el CMS en T-05; todavía no hay una aplicación ejecutable ni comandos de instalación de dependencias para ejecutar aquí.
+El repositorio ya incluye el frontend Next.js y el CMS Strapi. Para instalar dependencias, configurar la URL del CMS y ejecutar la interfaz, seguí la [guía del frontend](apps/frontend/README.md); la [guía del backend](apps/backend/README.md) documenta la API.
 
 ## Stack y organización prevista
 
@@ -22,15 +22,17 @@ Esta etapa prepara el repositorio y el flujo Git (T-01). El frontend se iniciali
 | Autenticación | Inicio y cierre de sesión, identidad de usuario y permisos por membresía | T-21 (#22) |
 | Interfaz | Template de chat, documentado antes de su adaptación | T-03, T-04, T-13 a T-15 |
 
-Estructura acordada como punto de partida; las carpetas de aplicación se crearán al inicializar cada componente:
+Estructura actual del repositorio:
 
 ```text
 community-hub/
-├── frontend/                 # Next.js (T-02)
-├── backend/                  # Strapi (T-05)
+├── apps/
+│   ├── frontend/             # Next.js
+│   └── backend/              # Strapi
 ├── docs/                     # Template, decisiones y evidencia (T-04, T-16, T-17)
 ├── .github/
 │   └── pull_request_template.md
+├── package.json              # Workspaces y comandos del monorepo
 ├── .gitignore
 └── README.md
 ```

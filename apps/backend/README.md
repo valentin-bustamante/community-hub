@@ -46,19 +46,46 @@ El código se normaliza a mayúsculas y espacios exteriores se eliminan. Una
 solicitud válida crea la membresía con el rol `miembro` y responde con el
 identificador y nombre de la comunidad.
 
-## Permisos de Strapi
+## Consultas autenticadas de comunidades, canales y membresías
 
-En **Settings → Users & Permissions → Roles → Authenticated**, habilitar solo
-las acciones necesarias:
+Todas estas rutas requieren el JWT del usuario de la aplicación en el header
+`Authorization: Bearer <jwt>`. No se debe enviar un token de administrador ni
+un token de API al navegador.
 
-- `Comunidad.create` para crear comunidades.
-- `Comunidad.join` para unirse con invitación.
+| Método y ruta | Resultado |
+| --- | --- |
+| `GET /api/membresias` | Membresías y comunidades del usuario autenticado. |
+| `GET /api/membresias?comunidad=<documentId>` | Miembros de la comunidad; requiere pertenecer a ella. |
+| `GET /api/canales?comunidad=<documentId>` | Canales de la comunidad; requiere pertenecer a ella. |
+| `GET /api/membresias/<documentId>` | Una membresía de una comunidad a la que pertenece el usuario. |
+| `GET /api/canales/<documentId>` | Un canal de una comunidad a la que pertenece el usuario. |
+| `GET /api/comunidades/<documentId>` | La comunidad; el código de invitación se incluye solo para sus miembros. |
 
-La ruta de unión es una acción personalizada del controlador de comunidades.
-No habilitar operaciones de gestión de membresías para el cliente como
-consecuencia de estos permisos. Los permisos configurados en el panel se
-guardan en la base de datos local y cada integrante debe configurarlos en su
-instancia.
+Las acciones de canales y membresías comprueban la pertenencia y el rol en el
+controlador. Crear, editar o eliminar canales y transferir la propiedad requiere
+ser propietario; eliminar membresías permite salir de la comunidad o, al
+propietario, expulsar a otra persona. El propietario no puede salir sin
+transferir antes el rol. Las membresías se crean desde los flujos de creación
+de comunidad o unión por invitación, no con una operación genérica del cliente.
+
+Las respuestas usan el envelope de Strapi 5 `{ "data": [...] }` para
+colecciones y `{ "data": { ... } }` para un recurso. Cada comunidad, canal o
+membresía incluye `id` y `documentId`; las comunidades incluyen `nombre`, los
+canales `nombre` y las membresías `rol` y su relación `comunidad`. La lista de
+miembros de una comunidad también incluye `usuario` con su `id` y `username`.
+
+Durante el arranque, `src/index.ts` agrega al rol **Authenticated** las acciones
+de lectura necesarias y las operaciones que validan permisos en esos
+controladores. No hace falta asignar tokens de API ni activar manualmente esas
+acciones en el panel. El frontend consulta con el JWT de la sesión y desactiva
+la caché (`no-store`) para no reutilizar datos privados entre usuarios.
+
+## Respuestas de error
+
+Además de los errores de creación y unión documentados arriba, las consultas
+pueden responder `401` sin sesión, `403` si el usuario no pertenece a la
+comunidad, `404` si no existe y `409` cuando la operación entra en conflicto
+con las reglas de roles o canales.
 
 ## Respuestas de error
 
