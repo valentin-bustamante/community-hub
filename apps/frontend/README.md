@@ -1,36 +1,34 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Frontend
 
-## Getting Started
+Interfaz de Community Hub hecha con Next.js. Las solicitudes autenticadas a Strapi usan el JWT del usuario conectado; el frontend no necesita ni debe recibir tokens de API o de administrador.
 
-First, run the development server:
+## Configuración local
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Desde la raíz del repositorio, instalá las dependencias y prepará la URL del CMS:
+
+```powershell
+npm install
+Copy-Item apps/frontend/.env.example apps/frontend/.env.local
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Si Strapi no está escuchando en `http://localhost:1337`, actualizá `NEXT_PUBLIC_STRAPI_URL` en `apps/frontend/.env.local`. Este valor es público y solo indica la URL del CMS; no pongas tokens ni credenciales en variables `NEXT_PUBLIC_*`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Con Strapi iniciado en otra terminal, ejecutá Next.js:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```powershell
+npm run dev:frontend
+```
 
-## Learn More
+La interfaz queda disponible en `http://localhost:3000`. Para compilar:
 
-To learn more about Next.js, take a look at the following resources:
+```powershell
+npm run build -w frontend
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Acceso a la API
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Las llamadas autenticadas se centralizan en `src/lib/strapi.ts`: agregan el JWT de la sesión, interpretan los errores HTTP de Strapi y validan el formato de la respuesta. Las consultas usan `cache: "no-store"` para no reutilizar datos de una sesión o comunidad en otra.
 
-## Deploy on Vercel
+`src/lib/comunidades.ts` expone las consultas de comunidades, canales y membresías. El endpoint de membresías devuelve las del usuario autenticado; al solicitar miembros o canales de una comunidad, el backend comprueba primero que el usuario pertenezca a ella. Los nombres de comunidades corresponden al modelo `Comunidad` que se usa como servidor en esta aplicación.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+El rol **Authenticated** y las acciones habilitadas se configuran desde el backend durante el arranque. Consultá [la guía de la API](../backend/README.md) para ver endpoints y permisos. El frontend no usa tokens administrativos ni tokens de API de Strapi.
