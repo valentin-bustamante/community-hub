@@ -5,7 +5,13 @@ import React, { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 
 import { getUsername, logout } from "@/lib/auth"
-import { codigoDeInvitacion, misComunidades, type Comunidad } from "@/lib/comunidades"
+import {
+  canalesDeComunidad,
+  codigoDeInvitacion,
+  misComunidades,
+  type Canal,
+  type Comunidad,
+} from "@/lib/comunidades"
 import { ComunidadDialog, type ComunidadDialogMode } from "@/components/comunidad-dialog"
 
 // ** UI Components **
@@ -32,6 +38,80 @@ import {
 import { ChevronUp, LogIn, Plus, Send, User2, UserPlus } from "lucide-react"
 
 // ** Home Component **
+function ChannelPanel({ comunidad }: { comunidad: Comunidad }) {
+  const [canales, setCanales] = useState<Canal[]>([])
+  const [currentCanal, setCurrentCanal] = useState<Canal | null>(null)
+  const [estado, setEstado] = useState<"cargando" | "listo" | "error">("cargando")
+  const [error, setError] = useState("")
+
+  useEffect(() => {
+    let vigente = true
+
+    canalesDeComunidad(comunidad.documentId)
+      .then((resultado) => {
+        if (!vigente) return
+        setCanales(resultado)
+        setCurrentCanal(resultado[0] ?? null)
+        setEstado("listo")
+      })
+      .catch((err) => {
+        if (!vigente) return
+        setError(err.message)
+        setEstado("error")
+      })
+
+    return () => {
+      vigente = false
+    }
+  }, [comunidad.documentId])
+
+  return (
+    <>
+      <section aria-label="Canales de la comunidad" className="border-b px-4 py-3">
+        <h2 className="mb-2 text-sm font-medium">Canales</h2>
+        {estado === "cargando" ? (
+          <p role="status" className="text-sm text-muted-foreground">
+            Cargando canales...
+          </p>
+        ) : estado === "error" ? (
+          <p role="alert" className="text-sm text-destructive">
+            {error}
+          </p>
+        ) : canales.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            Esta comunidad todavía no tiene canales.
+          </p>
+        ) : (
+          <ul className="flex flex-wrap gap-2">
+            {canales.map((canal) => (
+              <li key={canal.documentId}>
+                <button
+                  type="button"
+                  aria-pressed={currentCanal?.documentId === canal.documentId}
+                  onClick={() => setCurrentCanal(canal)}
+                  className={
+                    "rounded-md px-3 py-1 text-sm hover:bg-secondary" +
+                    (currentCanal?.documentId === canal.documentId ? " bg-secondary font-medium" : "")
+                  }
+                >
+                  # {canal.nombre}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <div className="flex flex-grow flex-col items-center justify-center gap-2 text-sm text-muted-foreground">
+        {currentCanal && (
+          <p className="font-medium text-foreground"># {currentCanal.nombre}</p>
+        )}
+        <p>Todavía no hay mensajes.</p>
+      </div>
+    </>
+  )
+}
+
 export const Home = () => {
   const router = useRouter()
   const [username] = useState(getUsername)
@@ -167,9 +247,7 @@ export const Home = () => {
                   </div>
                 </div>
 
-                <div className="flex flex-grow items-center justify-center text-sm text-muted-foreground">
-                  Todavía no hay mensajes.
-                </div>
+                <ChannelPanel key={currentChat.documentId} comunidad={currentChat} />
 
                 {/* Chat Input */}
                 <div className="flex h-10 pt-2 border-t">
