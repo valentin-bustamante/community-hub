@@ -41,3 +41,8 @@ export function logout() {
   localStorage.removeItem(TOKEN_KEY)
   localStorage.removeItem(USER_KEY)
 }
+
+export function expireSession() {
+  logout()
+  window.dispatchEvent(new Event("community-hub:session-expired"))
+}

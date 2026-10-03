@@ -1,4 +1,4 @@
-import { API_URL, getToken } from "@/lib/auth"
+import { API_URL, expireSession, getToken } from "@/lib/auth"
 
 type StrapiRequestOptions = {
   method?: "GET" | "POST"
@@ -20,11 +20,11 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function errorMessage(payload: unknown, status: number): string {
+  if (status === 401) return "La sesión venció. Iniciá sesión nuevamente."
   if (isRecord(payload) && isRecord(payload.error) && typeof payload.error.message === "string") {
     return payload.error.message
   }
 
-  if (status === 401) return "La sesión venció. Iniciá sesión nuevamente."
   if (status === 403) return "No tenés permiso para realizar esta operación."
   if (status === 404) return "No se encontró el recurso solicitado."
   return "No se pudo completar la solicitud a Strapi."
@@ -72,6 +72,10 @@ async function request(path: string, options: StrapiRequestOptions = {}): Promis
       }
       throw new Error("Strapi devolvió una respuesta que no es JSON válido.")
     }
+  }
+
+  if (response.status === 401) {
+    expireSession()
   }
 
   if (!response.ok) {
