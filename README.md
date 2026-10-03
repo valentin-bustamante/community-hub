@@ -13,6 +13,8 @@ Administrar servidores, canales y membresías desde Strapi y presentarlos en una
 
 Esta etapa prepara el repositorio y el flujo Git (T-01). El frontend se inicializa en T-02 y el CMS en T-05; todavía no hay una aplicación ejecutable ni comandos de instalación de dependencias para ejecutar aquí.
 
+La referencia al diseño original y sus diferencias con la interfaz actual está en [docs/T-04-template-original.md](docs/T-04-template-original.md).
+
 ## Stack y organización prevista
 
 | Componente | Tecnología / responsabilidad | Tarea |
