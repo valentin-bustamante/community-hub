@@ -10,6 +10,30 @@ const membresiaUid = 'api::membresia.membresia';
 const canalUid = 'api::canal.canal';
 
 export default factories.createCoreController(comunidadUid, ({ strapi }) => ({
+  async findOne(ctx) {
+    const user = ctx.state.user;
+    const response = await super.findOne(ctx);
+
+    if (!user || !response?.data) {
+      return response;
+    }
+
+    const comunidad = await strapi.db.query(comunidadUid).findOne({
+      where: { documentId: ctx.params.id },
+    });
+    const membresia =
+      comunidad &&
+      (await strapi.db.query(membresiaUid).findOne({
+        where: { usuario: user.id, comunidad: comunidad.id },
+      }));
+
+    if (membresia) {
+      response.data.codigoInvitacion = comunidad.codigoInvitacion;
+    }
+
+    return response;
+  },
+
   async create(ctx) {
     const user = ctx.state.user;
 

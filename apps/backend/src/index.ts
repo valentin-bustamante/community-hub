@@ -1,4 +1,12 @@
-// import type { Core } from '@strapi/strapi';
+import type { Core } from '@strapi/strapi';
+
+const permisosAutenticado = [
+  'api::comunidad.comunidad.create',
+  'api::comunidad.comunidad.join',
+  'api::comunidad.comunidad.find',
+  'api::comunidad.comunidad.findOne',
+  'api::membresia.membresia.find',
+];
 
 export default {
   /**
@@ -16,5 +24,23 @@ export default {
    * This gives you an opportunity to set up your data model,
    * run jobs, or perform some special logic.
    */
-  bootstrap(/* { strapi }: { strapi: Core.Strapi } */) {},
+  async bootstrap({ strapi }: { strapi: Core.Strapi }) {
+    const rol = await strapi.db
+      .query('plugin::users-permissions.role')
+      .findOne({ where: { type: 'authenticated' }, populate: ['permissions'] });
+
+    if (!rol) {
+      return;
+    }
+
+    const existentes = rol.permissions.map((permiso: { action: string }) => permiso.action);
+
+    for (const action of permisosAutenticado) {
+      if (!existentes.includes(action)) {
+        await strapi.db
+          .query('plugin::users-permissions.permission')
+          .create({ data: { action, role: rol.id } });
+      }
+    }
+  },
 };

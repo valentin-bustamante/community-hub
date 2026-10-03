@@ -623,7 +623,9 @@ export interface ApiComunidadComunidad extends Struct.CollectionTypeSchema {
   };
   attributes: {
     canales: Schema.Attribute.Relation<'oneToMany', 'api::canal.canal'>;
-    codigoInvitacion: Schema.Attribute.String & Schema.Attribute.Unique;
+    codigoInvitacion: Schema.Attribute.String &
+      Schema.Attribute.Private &
+      Schema.Attribute.Unique;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
