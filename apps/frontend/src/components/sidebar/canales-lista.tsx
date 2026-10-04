@@ -11,6 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useMenuMovil } from "@/components/sidebar/menu-mobile"
 
 type Props = {
   canales: Canal[]
@@ -37,6 +38,9 @@ export function CanalesLista({
   onCrear,
   onAccion,
 }: Props) {
+  // En mobile, elegir un canal o abrir un diálogo cierra el menú.
+  const { cerrar } = useMenuMovil()
+
   return (
     <div className="mb-1 ml-5 flex flex-col gap-0.5 border-l pl-2">
       {estado === "cargando" ? (
@@ -61,7 +65,10 @@ export function CanalesLista({
                 <button
                   type="button"
                   aria-current={activo ? "page" : undefined}
-                  onClick={() => onSelect(canal)}
+                  onClick={() => {
+                    onSelect(canal)
+                    cerrar()
+                  }}
                   className={cn("min-w-0 flex-grow cursor-pointer truncate rounded-md px-2 py-1 text-left", foco)}
                 >
                   # {canal.nombre}
@@ -81,10 +88,21 @@ export function CanalesLista({
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent side="right" align="start">
-                      <DropdownMenuItem onSelect={() => onAccion("renombrar", canal)}>
+                      <DropdownMenuItem
+                        onSelect={() => {
+                          cerrar()
+                          onAccion("renombrar", canal)
+                        }}
+                      >
                         <Pencil /> Renombrar
                       </DropdownMenuItem>
-                      <DropdownMenuItem variant="destructive" onSelect={() => onAccion("eliminar", canal)}>
+                      <DropdownMenuItem
+                        variant="destructive"
+                        onSelect={() => {
+                          cerrar()
+                          onAccion("eliminar", canal)
+                        }}
+                      >
                         <Trash2 /> Eliminar
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -99,7 +117,10 @@ export function CanalesLista({
       {esPropietario && estado === "listo" && (
         <button
           type="button"
-          onClick={onCrear}
+          onClick={() => {
+            cerrar()
+            onCrear()
+          }}
           className={cn("flex cursor-pointer items-center gap-1.5 px-2 py-1 text-left", fila, foco)}
         >
           <Plus className="size-4 shrink-0" aria-hidden="true" />
