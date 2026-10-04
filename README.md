@@ -1,90 +1,61 @@
 # Community Hub
 
-Trabajo Práctico 2 de Framework e Interoperabilidad: aplicación web basada en Next.js, Strapi CMS y la adaptación de un template de chat.
+Chat por comunidades, hecho con Strapi y Next.js. Trabajo Práctico 2 de Frameworks e Interoperabilidad.
 
-## Objetivo y alcance
+- [Tablero](https://github.com/users/valentin-bustamante/projects/1)
+- [Issues](https://github.com/valentin-bustamante/community-hub/issues)
 
-Administrar servidores, canales y membresías desde Strapi y presentarlos en una interfaz personalizada con Next.js. El desarrollo comprende T-01 a T-17 y [T-21 Autenticación](https://github.com/valentin-bustamante/community-hub/issues/22). T-18, T-19 y T-20 se gestionan fuera de este repositorio.
+## Qué hace
 
-- [Tablero del TP2](https://github.com/users/valentin-bustamante/projects/1)
-- [Issues y criterios de aceptación](https://github.com/valentin-bustamante/community-hub/issues)
+- Registro e inicio de sesión.
+- Crear comunidades y unirse con un código de invitación.
+- Canales de texto dentro de cada comunidad.
+- Mensajes en cada canal.
+- Roles por comunidad: propietario, moderador y miembro.
 
-## Estado del proyecto
+## Stack
 
-El repositorio ya incluye el frontend Next.js y el CMS Strapi. Para instalar dependencias, configurar la URL del CMS y ejecutar la interfaz, seguí la [guía del frontend](apps/frontend/README.md); la [guía del backend](apps/backend/README.md) documenta la API.
+| Parte | Tecnología |
+| --- | --- |
+| Backend | Strapi 5, SQLite |
+| Frontend | Next.js 16, React 19, Tailwind, shadcn/ui |
+| Repositorio | npm workspaces |
 
-## Stack y organización prevista
+## Cómo levantarlo
 
-| Componente | Tecnología / responsabilidad | Tarea |
-| --- | --- | --- |
-| Frontend | Next.js: rutas, componentes, navegación y consumo de datos | T-02 |
-| CMS | Strapi: modelos Server, Channel y Membership y API | T-05 a T-09 |
-| Autenticación | Inicio y cierre de sesión, identidad de usuario y permisos por membresía | T-21 (#22) |
-| Interfaz | Template de chat, documentado antes de su adaptación | T-03, T-04, T-13 a T-15 |
+Requiere Node.js 20 o superior.
 
-Estructura actual del repositorio:
+```sh
+npm install
+cp apps/backend/.env.example apps/backend/.env
+```
+
+En `apps/backend/.env`, reemplazá cada `tobemodified` por un texto aleatorio. Después:
+
+```sh
+npm run dev
+```
+
+- Frontend: http://localhost:3000
+- Admin de Strapi: http://localhost:1337/admin (la primera vez pide crear un usuario administrador)
+
+La base de datos es local: cada integrante arranca con la suya, vacía. Los permisos de la API se configuran solos al iniciar Strapi.
+
+## Estructura
 
 ```text
-community-hub/
-├── apps/
-│   ├── frontend/             # Next.js
-│   └── backend/              # Strapi
-├── docs/                     # Template, decisiones y evidencia (T-04, T-16, T-17)
-├── .github/
-│   └── pull_request_template.md
-├── package.json              # Workspaces y comandos del monorepo
-├── .gitignore
-└── README.md
+apps/
+├── backend/    Strapi: modelos, API y permisos
+└── frontend/   Next.js: interfaz
+docs/           Pruebas y documentación
 ```
 
-Las versiones de Node.js, Next.js, Strapi, el gestor de paquetes y la base de datos se fijarán y documentarán al inicializar los proyectos, verificando su compatibilidad. Versionar el archivo de bloqueo del gestor elegido.
+Más detalle en [apps/backend/README.md](apps/backend/README.md) y [apps/frontend/README.md](apps/frontend/README.md).
 
-## Comenzar a colaborar
+## Cómo colaborar
 
-1. Tener Git instalado y acceso con la cuenta de GitHub acordada por el equipo.
-2. Clonar el repositorio:
+1. Asignate el issue y creá una rama desde `main`: `feat/T-XX-descripcion`, `fix/T-XX-descripcion` o `chore/T-XX-descripcion`.
+2. Abrí un PR hacia `main` con `Closes #<número del issue>`.
+3. Pedí revisión a otro integrante antes de mergear.
 
-```sh
-git clone https://github.com/valentin-bustamante/community-hub.git
-cd community-hub
-git status
-```
-
-3. Consultar el Issue, sus dependencias y criterios. Asignarse antes de comenzar y moverlo a **En progreso**.
-4. Actualizar `main` y crear una rama por tarea:
-
-```sh
-git switch main
-git pull --ff-only origin main
-git switch -c feature/T-02-nextjs-setup
-```
-
-Usar `feature/T-XX-descripcion`, `fix/T-XX-descripcion` o `chore/T-XX-descripcion`. Mantener commits pequeños, por ejemplo `docs: documentar flujo Git (#1)`. Revisar `git diff` y `git status` antes de agregar archivos.
-
-5. Subir la rama (`git push -u origin <rama>`) y abrir un PR hacia `main` con la plantilla del repositorio.
-6. Incluir resumen, evidencia de validación y `Closes #<numero-del-issue>`. El número del Issue no debe deducirse del código T-XX: verificarlo en GitHub.
-7. Solicitar revisión a otro integrante, resolver observaciones y hacer merge solo cuando se cumplan los criterios. Este acuerdo de trabajo no implica que existan reglas de protección de ramas configuradas.
-
-## Kanban
-
-| Estado | Uso |
-| --- | --- |
-| Backlog | Pendiente de preparación o con dependencias |
-| Por hacer | Lista para comenzar |
-| En progreso | Responsable trabajando en una rama |
-| En revisión | PR preparado para revisión del equipo |
-| Finalizado | Criterios verificados, cambio integrado e Issue cerrado |
-
-Prioridad: **P0** base bloqueante, **P1** funcionalidad principal, **P2** mejoras y cierre. El Project dispone de responsables y PRs vinculados. Vincular un PR mueve el Issue a En revisión; si es un PR borrador, devolverlo manualmente a En progreso hasta estar listo. Cerrar el Issue lo mueve a Finalizado. No cerrar tareas solo por marcar sus casillas.
-
-## Archivos locales y configuración
-
-`.gitignore` excluye dependencias, compilaciones, cachés, logs, entornos locales y datos generados. No subir credenciales ni tokens. Documentar variables mediante `.env.example` con valores ficticios y copiarlo localmente cuando cada aplicación lo requiera.
-
-Los archivos de bloqueo y las migraciones o esquemas deben versionarse. Los recursos de prueba intencionales se deben diferenciar de datos locales y subidas generadas por usuarios. `.gitignore` no elimina archivos ya versionados: revisar siempre el diff antes del commit.
-
-## Validación y entrega
-
-Cada PR debe explicar los pasos ejecutados y sus resultados. Para T-02 y T-05 se añadirán instrucciones reales de instalación, ejecución y compilación. Las pruebas funcionales integradas se documentarán en T-16.
-
-Para cerrar T-01 falta que otro integrante revise el primer PR y confirme que puede clonar el repositorio y colaborar. El propietario debe comprobar también el acceso al Project privado; el acceso al repositorio no garantiza acceso al tablero.
+No subas `.env`, `node_modules` ni la base de datos.

@@ -1,97 +1,75 @@
-# Community Hub API
+# Backend
 
-## Crear una comunidad
+API de Community Hub, hecha con Strapi 5 y SQLite.
 
-`POST /api/comunidades`
+## Levantar
 
-Requiere un JWT de usuario de la aplicación:
+Desde la raíz del repositorio:
 
-```http
-Authorization: Bearer <jwt>
-Content-Type: application/json
+```sh
+cp apps/backend/.env.example apps/backend/.env
+npm run dev:backend
 ```
 
-```json
-{
-  "data": {
-    "nombre": "Mi comunidad"
-  }
-}
-```
+En `.env`, reemplazá cada `tobemodified` por un texto aleatorio. El admin queda en http://localhost:1337/admin.
 
-El backend genera el código de invitación y crea, en una transacción, el canal
-`general` y la membresía `propietario` para el usuario autenticado. El cliente
-no debe enviar relaciones, membresías, canales ni un código de invitación.
-La respuesta incluye la comunidad creada y el código que el propietario puede
-compartir.
+## Modelos
 
-## Unirse mediante código de invitación
-
-`POST /api/comunidades/unirse`
-
-Requiere el JWT del usuario que desea unirse:
-
-```http
-Authorization: Bearer <jwt>
-Content-Type: application/json
-```
-
-```json
-{
-  "codigoInvitacion": "A1B2C3D4E5F6"
-}
-```
-
-El código se normaliza a mayúsculas y espacios exteriores se eliminan. Una
-solicitud válida crea la membresía con el rol `miembro` y responde con el
-identificador y nombre de la comunidad.
-
-## Consultas autenticadas de comunidades, canales y membresías
-
-Todas estas rutas requieren el JWT del usuario de la aplicación en el header
-`Authorization: Bearer <jwt>`. No se debe enviar un token de administrador ni
-un token de API al navegador.
-
-| Método y ruta | Resultado |
+| Modelo | Campos |
 | --- | --- |
-| `GET /api/membresias` | Membresías y comunidades del usuario autenticado. |
-| `GET /api/membresias?comunidad=<documentId>` | Miembros de la comunidad; requiere pertenecer a ella. |
-| `GET /api/canales?comunidad=<documentId>` | Canales de la comunidad; requiere pertenecer a ella. |
-| `GET /api/membresias/<documentId>` | Una membresía de una comunidad a la que pertenece el usuario. |
-| `GET /api/canales/<documentId>` | Un canal de una comunidad a la que pertenece el usuario. |
-| `GET /api/comunidades/<documentId>` | La comunidad; el código de invitación se incluye solo para sus miembros. |
+| Comunidad | `nombre`, `codigoInvitacion` (privado), `icono` |
+| Canal | `nombre`, pertenece a una comunidad |
+| Mensaje | `contenido`, pertenece a un canal y a un usuario |
+| Membresia | `rol` (`propietario`, `moderador`, `miembro`), une un usuario con una comunidad |
 
-Las acciones de canales y membresías comprueban la pertenencia y el rol en el
-controlador. Crear, editar o eliminar canales y transferir la propiedad requiere
-ser propietario; eliminar membresías permite salir de la comunidad o, al
-propietario, expulsar a otra persona. El propietario no puede salir sin
-transferir antes el rol. Las membresías se crean desde los flujos de creación
-de comunidad o unión por invitación, no con una operación genérica del cliente.
+## Endpoints
 
-Las respuestas usan el envelope de Strapi 5 `{ "data": [...] }` para
-colecciones y `{ "data": { ... } }` para un recurso. Cada comunidad, canal o
-membresía incluye `id` y `documentId`; las comunidades incluyen `nombre`, los
-canales `nombre` y las membresías `rol` y su relación `comunidad`. La lista de
-miembros de una comunidad también incluye `usuario` con su `id` y `username`.
+Todos requieren el header `Authorization: Bearer <jwt>`. El token se obtiene con `POST /api/auth/local` o `POST /api/auth/local/register`.
 
-Durante el arranque, `src/index.ts` agrega al rol **Authenticated** las acciones
-de lectura necesarias y las operaciones que validan permisos en esos
-controladores. No hace falta asignar tokens de API ni activar manualmente esas
-acciones en el panel. El frontend consulta con el JWT de la sesión y desactiva
-la caché (`no-store`) para no reutilizar datos privados entre usuarios.
+| Método y ruta | Qué hace | Quién puede |
+| --- | --- | --- |
+| `POST /api/comunidades` | Crea la comunidad, su canal `general` y la membresía de propietario | Cualquier usuario |
+| `POST /api/comunidades/unirse` | Une al usuario con un código de invitación | Cualquier usuario |
+| `GET /api/comunidades/:id` | Devuelve la comunidad, con el código de invitación | Miembros |
+| `GET /api/membresias` | Lista las comunidades del usuario | Cualquier usuario |
+| `GET /api/membresias?comunidad=:id` | Lista los miembros de la comunidad | Miembros |
+| `PUT /api/membresias/:id` | Cambia el rol de un miembro | Propietario |
+| `DELETE /api/membresias/:id` | Sale de la comunidad o expulsa a un miembro | El propio miembro o el propietario |
+| `GET /api/canales?comunidad=:id` | Lista los canales | Miembros |
+| `POST /api/canales` | Crea un canal | Propietario |
+| `PUT /api/canales/:id` | Renombra un canal | Propietario |
+| `DELETE /api/canales/:id` | Borra un canal y sus mensajes | Propietario |
+| `GET /api/mensajes?canal=:id` | Devuelve los últimos 50 mensajes; con `&desde=<fecha>`, solo los posteriores | Miembros |
+| `POST /api/mensajes` | Envía un mensaje al canal | Miembros |
 
-## Respuestas de error
+Los `:id` son el `documentId` de cada registro.
 
-Además de los errores de creación y unión documentados arriba, las consultas
-pueden responder `401` sin sesión, `403` si el usuario no pertenece a la
-comunidad, `404` si no existe y `409` cuando la operación entra en conflicto
-con las reglas de roles o canales.
+Ejemplos de cuerpo:
 
-## Respuestas de error
+```json
+{ "data": { "nombre": "Mi comunidad" } }
+```
+
+```json
+{ "codigoInvitacion": "A1B2C3D4E5F6" }
+```
+
+```json
+{ "data": { "contenido": "Hola", "canal": "<documentId del canal>" } }
+```
+
+## Errores
 
 | Estado | Caso |
 | --- | --- |
-| `400` | Falta el nombre de la comunidad o el código de invitación. |
-| `401` / `403` | No se autenticó el usuario o la acción no está permitida para su rol. |
-| `404` | El código no corresponde a una comunidad. |
-| `409` | El usuario ya pertenece a esa comunidad. |
+| `400` | Faltan datos o no son válidos |
+| `401` | No hay sesión o el token venció |
+| `403` | El usuario no pertenece a la comunidad o su rol no alcanza |
+| `404` | El recurso no existe |
+| `409` | Conflicto: ya es miembro, nombre de canal repetido, último canal o propietario que intenta salir |
+
+## Permisos
+
+Los permisos del rol **Authenticated** se cargan al iniciar Strapi, desde `src/index.ts`. No hay que configurarlos en el panel. Para habilitar una acción nueva, se agrega a esa lista.
+
+El control por comunidad y por rol está en los controladores de `src/api/`.
