@@ -15,6 +15,7 @@ import { ComunidadDialog, type ComunidadDialogMode } from "@/components/comunida
 import { ComunidadView } from "@/components/comunidad-view"
 import { AppSidebar } from "@/components/sidebar/app-sidebar"
 import { CanalesLista } from "@/components/sidebar/canales-lista"
+import { BotonMenu } from "@/components/sidebar/menu-mobile"
 
 type CargaCanales = {
   comunidadId: string
@@ -99,15 +100,23 @@ export const Home = () => {
       estado={estadoCanales}
       error={cargaActual?.error ?? ""}
     />
-  ) : errorComunidades ? (
-    <p role="alert" className="flex h-screen items-center justify-center p-6 text-center text-destructive">
-      {errorComunidades}
-    </p>
   ) : (
-    <div className="flex h-screen items-center justify-center p-6 text-center text-muted-foreground">
-      {comunidades.length === 0
-        ? "Todavía no estás en ninguna comunidad. Creá una o unite a una existente con el botón +."
-        : "Elegí una comunidad de la barra lateral."}
+    <div className="flex h-dvh flex-col">
+      {/* Sin comunidad elegida no hay encabezado: en mobile hace falta el ☰ para abrir el menu */}
+      <div className="flex h-12 shrink-0 items-center border-b px-3 md:hidden">
+        <BotonMenu />
+      </div>
+      {errorComunidades ? (
+        <p role="alert" className="flex flex-grow items-center justify-center p-6 text-center text-destructive">
+          {errorComunidades}
+        </p>
+      ) : (
+        <div className="flex flex-grow items-center justify-center p-6 text-center text-muted-foreground">
+          {comunidades.length === 0
+            ? "Todavía no estás en ninguna comunidad. Creá una o unite a una existente con el botón +."
+            : "Elegí una comunidad de la barra lateral."}
+        </div>
+      )}
     </div>
   )
 
