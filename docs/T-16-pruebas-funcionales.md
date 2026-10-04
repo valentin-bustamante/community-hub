@@ -47,9 +47,11 @@ funcionar.
 
 - `npm ci --offline --no-audit --no-fund` — pasó; instaló las dependencias
   desde la caché local.
-- `npm run lint --workspace=frontend -- src/components/home.tsx src/components/comunidad-view.tsx src/components/miembros-panel.tsx src/components/canal-chat.tsx` — pasó.
+- `npm run lint --workspace=frontend -- src/components/sidebar/app-sidebar.tsx src/components/miembros-panel.tsx src/components/comunidad-view.tsx src/components/home.tsx src/components/canal-chat.tsx` — pasó.
 - `npm run build --workspace=frontend` — pasó; compilación de producción y
   verificación de TypeScript completas.
+- `npm run build` — pasó después de integrar T-14 y el PR #38; compiló Strapi
+  y el frontend.
 - `curl.exe -sS -o NUL -w 'GET /api/membresias without JWT: HTTP %{http_code}\n' 'http://127.0.0.1:1337/api/membresias'` — respondió HTTP `403`.
 - Con tokens de cuentas de prueba no incluidos en el repositorio, la API respondió `403` a una cuenta sin membresía al consultar canales, integrantes y mensajes; la miembro recibió `403` al intentar crear canales o cambiar roles.
 - La API aceptó un mensaje de 3000 caracteres (`201`) y rechazó uno de 3001 (`400`).
