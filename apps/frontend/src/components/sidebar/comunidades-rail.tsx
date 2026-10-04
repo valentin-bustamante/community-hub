@@ -1,7 +1,7 @@
 "use client"
 
 import type { ComponentProps, ReactNode } from "react"
-import { PanelLeftClose, PanelLeftOpen, Users } from "lucide-react"
+import { ChevronDown, ChevronRight, PanelLeftClose, PanelLeftOpen, Users } from "lucide-react"
 
 import type { Comunidad } from "@/lib/comunidades"
 import { cn } from "@/lib/utils"
@@ -14,10 +14,11 @@ type RailBotonProps = ComponentProps<"button"> & {
   label: string
   expandida: boolean
   activa?: boolean
+  final?: ReactNode
 }
 
 // ** Fila del rail: solo icono (con tooltip) si está contraido + texto si esta expandido **
-export function RailBoton({ icono, label, expandida, activa, className, ...props }: RailBotonProps) {
+export function RailBoton({ icono, label, expandida, activa, final, className, ...props }: RailBotonProps) {
   const boton = (
     <button
       type="button"
@@ -33,6 +34,7 @@ export function RailBoton({ icono, label, expandida, activa, className, ...props
     >
       {icono}
       {expandida && <span className="truncate">{label}</span>}
+      {expandida && final}
     </button>
   )
 
@@ -52,13 +54,25 @@ type Props = {
   onSelect: (comunidad: Comunidad) => void
   expandida: boolean
   onToggle: () => void
+  activaAbierta?: boolean
+  detalleActiva?: ReactNode
   // Botón "+" para crear o unirse a una comunidad.
   acciones?: ReactNode
   // Contenido fijo al pie, arriba del botón de expandir (menú del usuario).
   pie?: ReactNode
 }
 
-export function ComunidadesRail({ comunidades, activaId, onSelect, expandida, onToggle, acciones, pie }: Props) {
+export function ComunidadesRail({
+  comunidades,
+  activaId,
+  onSelect,
+  expandida,
+  onToggle,
+  activaAbierta,
+  detalleActiva,
+  acciones,
+  pie,
+}: Props) {
   const IconoToggle = expandida ? PanelLeftClose : PanelLeftOpen
 
   return (
@@ -76,17 +90,24 @@ export function ComunidadesRail({ comunidades, activaId, onSelect, expandida, on
 
       <ScrollArea className="min-h-0 w-full flex-grow">
         <ul className="flex flex-col gap-0.5 p-2">
-          {comunidades.map((comunidad) => (
-            <li key={comunidad.documentId}>
-              <RailBoton
-                icono={<ComunidadIcono nombre={comunidad.nombre} />}
-                label={comunidad.nombre}
-                expandida={expandida}
-                activa={comunidad.documentId === activaId}
-                onClick={() => onSelect(comunidad)}
-              />
-            </li>
-          ))}
+          {comunidades.map((comunidad) => {
+            const activa = comunidad.documentId === activaId
+            const IconoCanales = activa && activaAbierta ? ChevronDown : ChevronRight
+            return (
+              <li key={comunidad.documentId}>
+                <RailBoton
+                  icono={<ComunidadIcono nombre={comunidad.nombre} />}
+                  label={comunidad.nombre}
+                  expandida={expandida}
+                  activa={activa}
+                  aria-expanded={activa && expandida ? Boolean(activaAbierta) : undefined}
+                  final={<IconoCanales className="ml-auto size-4 shrink-0" aria-hidden="true" />}
+                  onClick={() => onSelect(comunidad)}
+                />
+                {expandida && activa && activaAbierta && detalleActiva}
+              </li>
+            )
+          })}
           {acciones && <li>{acciones}</li>}
         </ul>
       </ScrollArea>

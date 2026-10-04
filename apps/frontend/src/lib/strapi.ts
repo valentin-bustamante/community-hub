@@ -1,7 +1,7 @@
 import { API_URL, expireSession, getToken } from "@/lib/auth"
 
 type StrapiRequestOptions = {
-  method?: "GET" | "POST"
+  method?: "GET" | "POST" | "PUT" | "DELETE"
   body?: unknown
 }
 
@@ -110,4 +110,8 @@ export function strapiCollection<T>(
     }
     return data.map(parseItem)
   })
+}
+
+export async function strapiDelete(path: string): Promise<void> {
+  await request(path, { method: "DELETE" })
 }

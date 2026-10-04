@@ -1,4 +1,4 @@
-import { strapiCollection, strapiRequest } from "@/lib/strapi"
+import { strapiCollection, strapiDelete, strapiRequest } from "@/lib/strapi"
 
 export type Comunidad = {
   id: number
@@ -118,6 +118,23 @@ export async function misComunidades(): Promise<Comunidad[]> {
 export async function canalesDeComunidad(documentId: string): Promise<Canal[]> {
   const id = validarDocumentId(documentId, "la comunidad")
   return strapiCollection(`/api/canales?comunidad=${id}`, parseCanal)
+}
+
+export async function crearCanal(comunidadDocumentId: string, nombre: string): Promise<Canal> {
+  return strapiRequest("/api/canales", parseCanal, {
+    method: "POST",
+    body: { data: { nombre, comunidad: comunidadDocumentId } },
+  })
+}
+
+export async function renombrarCanal(documentId: string, nombre: string): Promise<Canal> {
+  const id = validarDocumentId(documentId, "el canal")
+  return strapiRequest(`/api/canales/${id}`, parseCanal, { method: "PUT", body: { data: { nombre } } })
+}
+
+export async function eliminarCanal(documentId: string): Promise<void> {
+  const id = validarDocumentId(documentId, "el canal")
+  return strapiDelete(`/api/canales/${id}`)
 }
 
 export async function membresiasDeComunidad(documentId: string): Promise<Membresia[]> {

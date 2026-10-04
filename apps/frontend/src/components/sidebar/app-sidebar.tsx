@@ -19,6 +19,8 @@ type Props = {
   comunidadActiva: Comunidad | null
   onSelectComunidad: (comunidad: Comunidad) => void
   onAbrirDialogo: (modo: ComunidadDialogMode) => void
+  activaAbierta?: boolean
+  detalleActiva?: ReactNode
   // cont principal, a la derecha de la sidebar.
   children: ReactNode
 }
@@ -29,9 +31,11 @@ export function AppSidebar({
   comunidadActiva,
   onSelectComunidad,
   onAbrirDialogo,
+  activaAbierta,
+  detalleActiva,
   children,
 }: Props) {
-  const [expandida, setExpandida] = useState(false)
+  const [expandida, setExpandida] = useState(true)
 
   return (
     <div className="flex h-screen">
@@ -41,6 +45,8 @@ export function AppSidebar({
         onSelect={onSelectComunidad}
         expandida={expandida}
         onToggle={() => setExpandida((abierta) => !abierta)}
+        activaAbierta={activaAbierta}
+        detalleActiva={detalleActiva}
         acciones={
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

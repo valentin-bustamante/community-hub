@@ -3,79 +3,101 @@
 // ** Imports: React & Hooks **
 import React, { useEffect, useState } from "react"
 
-import { codigoDeInvitacion, misComunidades, type Comunidad } from "@/lib/comunidades"
+import {
+  canalesDeComunidad,
+  misMembresias,
+  type Canal,
+  type Comunidad,
+  type RolMembresia,
+} from "@/lib/comunidades"
+import { CanalDialog, type CanalDialogMode } from "@/components/canal-dialog"
 import { ComunidadDialog, type ComunidadDialogMode } from "@/components/comunidad-dialog"
+import { ComunidadView } from "@/components/comunidad-view"
 import { AppSidebar } from "@/components/sidebar/app-sidebar"
-import { ComunidadIcono } from "@/components/sidebar/comunidad-icono"
+import { CanalesLista } from "@/components/sidebar/canales-lista"
 
-// ** UI Components **
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { CardDescription, CardTitle } from "@/components/ui/card"
-
-// ** Icons **
-import { Send, UserPlus } from "lucide-react"
+type CargaCanales = {
+  comunidadId: string
+  canales: Canal[]
+  error: string
+}
 
 // ** Home Component **
 export const Home = () => {
   const [dialogo, setDialogo] = useState<ComunidadDialogMode | null>(null)
   const [comunidades, setComunidades] = useState<Comunidad[]>([])
+  const [roles, setRoles] = useState<Record<string, RolMembresia>>({})
   const [errorComunidades, setErrorComunidades] = useState("")
   const [comunidadActiva, setComunidadActiva] = useState<Comunidad | null>(null)
-  const [invitacion, setInvitacion] = useState("")
+  const [carga, setCarga] = useState<CargaCanales | null>(null)
+  const [canalId, setCanalId] = useState<string | null>(null)
+  const [canalesAbiertos, setCanalesAbiertos] = useState(true)
+  const [dialogoCanal, setDialogoCanal] = useState<{ mode: CanalDialogMode; canal: Canal | null } | null>(null)
+
+  const comunidadId = comunidadActiva?.documentId ?? null
+  const cargaActual = carga && carga.comunidadId === comunidadId ? carga : null
+  const canales = cargaActual?.canales ?? []
+  const estadoCanales = !cargaActual ? "cargando" : cargaActual.error ? "error" : "listo"
+  const canalActivo = canales.find((canal) => canal.documentId === canalId) ?? canales[0] ?? null
 
   useEffect(() => {
-    misComunidades()
-      .then(setComunidades)
+    misMembresias()
+      .then((membresias) => {
+        const propias = membresias.flatMap(({ comunidad, rol }) => (comunidad ? [{ comunidad, rol }] : []))
+        setComunidades(propias.map(({ comunidad }) => comunidad))
+        setRoles(Object.fromEntries(propias.map(({ comunidad, rol }) => [comunidad.documentId, rol])))
+      })
       .catch((err) => setErrorComunidades(err.message))
   }, [])
 
+  useEffect(() => {
+    if (!comunidadId) return
+    let vigente = true
+
+    canalesDeComunidad(comunidadId)
+      .then((resultado) => {
+        if (vigente) setCarga({ comunidadId, canales: resultado, error: "" })
+      })
+      .catch((err) => {
+        if (vigente) setCarga({ comunidadId, canales: [], error: err.message })
+      })
+
+    return () => {
+      vigente = false
+    }
+  }, [comunidadId])
+
   function seleccionarComunidad(comunidad: Comunidad) {
-    setComunidadActiva(comunidad)
-    setInvitacion("")
+    if (comunidad.documentId === comunidadId) {
+      setCanalesAbiertos((abiertos) => !abiertos)
+    } else {
+      setComunidadActiva(comunidad)
+      setCanalesAbiertos(true)
+    }
   }
 
+  function aplicarCambioDeCanal(mode: CanalDialogMode, canal: Canal) {
+    if (!cargaActual) return
+    const actualizados =
+      mode === "crear"
+        ? [...canales, canal]
+        : mode === "renombrar"
+          ? canales.map((c) => (c.documentId === canal.documentId ? canal : c))
+          : canales.filter((c) => c.documentId !== canal.documentId)
+    setCarga({ ...cargaActual, canales: actualizados })
+    if (mode !== "eliminar") setCanalId(canal.documentId)
+  }
+
+  const esPropietario = comunidadId !== null && roles[comunidadId] === "propietario"
+
   const vistaPrincipal = comunidadActiva ? (
-    <div className="flex h-screen flex-col justify-between pb-2">
-      {/* Chat Header */}
-      <div className="flex h-12 items-center gap-2 border-b px-3">
-        <ComunidadIcono nombre={comunidadActiva.nombre} />
-        <div className="min-w-0">
-          <CardTitle className="truncate">{comunidadActiva.nombre}</CardTitle>
-          <CardDescription>Comunidad</CardDescription>
-        </div>
-        <div className="flex flex-grow justify-end">
-          {invitacion ? (
-            <span className="rounded-md bg-secondary px-3 py-1 font-mono tracking-widest select-all">
-              {invitacion}
-            </span>
-          ) : (
-            <Button
-              variant="ghost"
-              onClick={() =>
-                codigoDeInvitacion(comunidadActiva.documentId)
-                  .then(setInvitacion)
-                  .catch((err) => setInvitacion(err.message))
-              }
-            >
-              <UserPlus aria-hidden="true" /> Invitar
-            </Button>
-          )}
-        </div>
-      </div>
-
-      <div className="flex flex-grow items-center justify-center p-6 text-center text-sm text-muted-foreground">
-        Todavía no hay mensajes.
-      </div>
-
-      {/* Chat Input */}
-      <div className="flex h-10 border-t px-1 pt-2">
-        <Input className="flex-grow border-0" placeholder="Escribí un mensaje" aria-label="Mensaje" />
-        <Button variant="ghost" size="icon" aria-label="Enviar">
-          <Send aria-hidden="true" />
-        </Button>
-      </div>
-    </div>
+    <ComunidadView
+      key={comunidadActiva.documentId}
+      comunidad={comunidadActiva}
+      canal={canalActivo}
+      estado={estadoCanales}
+      error={cargaActual?.error ?? ""}
+    />
   ) : errorComunidades ? (
     <p role="alert" className="flex h-screen items-center justify-center p-6 text-center text-destructive">
       {errorComunidades}
@@ -95,16 +117,44 @@ export const Home = () => {
         comunidadActiva={comunidadActiva}
         onSelectComunidad={seleccionarComunidad}
         onAbrirDialogo={setDialogo}
+        activaAbierta={canalesAbiertos}
+        detalleActiva={
+          <CanalesLista
+            canales={canales}
+            estado={estadoCanales}
+            error={cargaActual?.error ?? ""}
+            canalActivo={canalActivo}
+            esPropietario={esPropietario}
+            onSelect={(canal) => setCanalId(canal.documentId)}
+            onCrear={() => setDialogoCanal({ mode: "crear", canal: null })}
+            onAccion={(mode, canal) => setDialogoCanal({ mode, canal })}
+          />
+        }
       >
         {vistaPrincipal}
       </AppSidebar>
+
+      {comunidadId && (
+        <CanalDialog
+          mode={dialogoCanal?.mode ?? null}
+          comunidadDocumentId={comunidadId}
+          canal={dialogoCanal?.canal ?? null}
+          onClose={() => setDialogoCanal(null)}
+          onDone={aplicarCambioDeCanal}
+        />
+      )}
 
       <ComunidadDialog
         mode={dialogo}
         onClose={() => setDialogo(null)}
         onDone={(comunidad) => {
           setComunidades((prev) => [...prev, comunidad])
-          seleccionarComunidad(comunidad)
+          setRoles((prev) => ({
+            ...prev,
+            [comunidad.documentId]: dialogo === "crear" ? "propietario" : "miembro",
+          }))
+          setComunidadActiva(comunidad)
+          setCanalesAbiertos(true)
         }}
       />
     </>
