@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { MoreHorizontal, ShieldMinus, ShieldPlus, UserMinus, Users } from "lucide-react"
+import { MoreHorizontal, ShieldMinus, ShieldPlus, UserMinus, Users, X } from "lucide-react"
 
 import {
   cambiarRol,
@@ -10,6 +10,7 @@ import {
   type Membresia,
   type RolMembresia,
 } from "@/lib/comunidades"
+import { cn } from "@/lib/utils"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,9 +28,12 @@ const grupos: { rol: RolMembresia; titulo: string }[] = [
 type Props = {
   comunidadDocumentId: string
   esPropietario: boolean
+  className?: string
+  // Si se pasa, muestra un botón para cerrar el panel (solo en mobile).
+  onCerrar?: () => void
 }
 
-export function MiembrosPanel({ comunidadDocumentId, esPropietario }: Props) {
+export function MiembrosPanel({ comunidadDocumentId, esPropietario, className, onCerrar }: Props) {
   const [miembros, setMiembros] = useState<Membresia[]>([])
   const [estado, setEstado] = useState<"cargando" | "listo" | "error">("cargando")
   const [error, setError] = useState("")
@@ -77,10 +81,20 @@ export function MiembrosPanel({ comunidadDocumentId, esPropietario }: Props) {
   }
 
   return (
-    <aside aria-label="Miembros" className="flex w-56 shrink-0 flex-col overflow-y-auto border-l">
+    <aside aria-label="Miembros" className={cn("flex w-56 shrink-0 flex-col overflow-y-auto border-l", className)}>
       <div className="flex h-10 shrink-0 items-center gap-2 px-4 text-sm font-semibold">
         <Users className="size-4 shrink-0" aria-hidden="true" />
         Miembros
+        {onCerrar && (
+          <button
+            type="button"
+            onClick={onCerrar}
+            aria-label="Cerrar miembros"
+            className="ml-auto flex size-6 cursor-pointer items-center justify-center rounded-md text-muted-foreground outline-none hover:bg-secondary hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring md:hidden"
+          >
+            <X className="size-4" aria-hidden="true" />
+          </button>
+        )}
       </div>
 
       {estado === "cargando" && (
