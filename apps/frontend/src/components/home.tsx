@@ -95,6 +95,7 @@ export const Home = () => {
       key={comunidadActiva.documentId}
       comunidad={comunidadActiva}
       canal={canalActivo}
+      rol={comunidadId ? roles[comunidadId] : undefined}
       estado={estadoCanales}
       error={cargaActual?.error ?? ""}
     />

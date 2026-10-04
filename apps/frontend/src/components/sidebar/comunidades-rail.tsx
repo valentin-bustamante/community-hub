@@ -5,7 +5,6 @@ import { ChevronDown, ChevronRight, PanelLeftClose, PanelLeftOpen, Users } from 
 
 import type { Comunidad } from "@/lib/comunidades"
 import { cn } from "@/lib/utils"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { ComunidadIcono } from "@/components/sidebar/comunidad-icono"
 
@@ -33,7 +32,7 @@ export function RailBoton({ icono, label, expandida, activa, final, className, .
       {...props}
     >
       {icono}
-      {expandida && <span className="truncate">{label}</span>}
+      {expandida && <span className="min-w-0 truncate">{label}</span>}
       {expandida && final}
     </button>
   )
@@ -88,7 +87,7 @@ export function ComunidadesRail({
         {expandida && <span className="truncate">Comunidades</span>}
       </div>
 
-      <ScrollArea className="min-h-0 w-full flex-grow">
+      <div className="min-h-0 w-full flex-grow overflow-x-hidden overflow-y-auto">
         <ul className="flex flex-col gap-0.5 p-2">
           {comunidades.map((comunidad) => {
             const activa = comunidad.documentId === activaId
@@ -110,7 +109,7 @@ export function ComunidadesRail({
           })}
           {acciones && <li>{acciones}</li>}
         </ul>
-      </ScrollArea>
+      </div>
 
       <div className="flex flex-col gap-0.5 border-t p-2">
         {pie}

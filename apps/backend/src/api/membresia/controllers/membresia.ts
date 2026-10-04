@@ -7,7 +7,7 @@ import { factories } from '@strapi/strapi';
 const membresiaUid = 'api::membresia.membresia';
 const comunidadUid = 'api::comunidad.comunidad';
 
-const roles = ['propietario', 'miembro'];
+const roles = ['propietario', 'administrador', 'miembro'];
 
 type Membresia = {
   id: number;
@@ -131,7 +131,7 @@ export default factories.createCoreController(membresiaUid, ({ strapi }) => {
       }
 
       if (typeof rol !== 'string' || !roles.includes(rol)) {
-        return ctx.badRequest('El rol debe ser "propietario" o "miembro".');
+        return ctx.badRequest('El rol debe ser "propietario", "administrador" o "miembro".');
       }
 
       const membresia = await membresiaCompleta(ctx.params.id);
@@ -160,6 +160,11 @@ export default factories.createCoreController(membresiaUid, ({ strapi }) => {
             where: { id: propia.id },
             data: { rol: 'miembro' },
           });
+        });
+      } else {
+        await strapi.db.query(membresiaUid).update({
+          where: { id: membresia.id },
+          data: { rol },
         });
       }
 

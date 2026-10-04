@@ -20,7 +20,7 @@ En `.env`, reemplazá cada `tobemodified` por un texto aleatorio. El admin queda
 | Comunidad | `nombre`, `codigoInvitacion` (privado), `icono` |
 | Canal | `nombre`, pertenece a una comunidad |
 | Mensaje | `contenido`, pertenece a un canal y a un usuario |
-| Membresia | `rol` (`propietario`, `moderador`, `miembro`), une un usuario con una comunidad |
+| Membresia | `rol` (`propietario`, `administrador`, `miembro`), une un usuario con una comunidad |
 
 ## Endpoints
 
