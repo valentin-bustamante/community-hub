@@ -14,6 +14,8 @@ const permisosAutenticado = [
   'api::canal.canal.create',
   'api::canal.canal.update',
   'api::canal.canal.delete',
+  'api::mensaje.mensaje.find',
+  'api::mensaje.mensaje.create',
 ];
 
 export default {

@@ -1,12 +1,12 @@
 "use client"
 
 import { useState } from "react"
-import { Send, UserPlus } from "lucide-react"
+import { UserPlus } from "lucide-react"
 
 import { codigoDeInvitacion, type Canal, type Comunidad } from "@/lib/comunidades"
+import { CanalChat } from "@/components/canal-chat"
 import { ComunidadIcono } from "@/components/sidebar/comunidad-icono"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { CardDescription, CardTitle } from "@/components/ui/card"
 
 type Props = {
@@ -47,29 +47,21 @@ export function ComunidadView({ comunidad, canal, estado, error }: Props) {
         </div>
       </div>
 
-      <div className="flex flex-grow flex-col items-center justify-center gap-2 p-6 text-center text-sm text-muted-foreground">
-        {estado === "cargando" ? (
-          <p role="status">Cargando canales...</p>
-        ) : estado === "error" ? (
-          <p role="alert" className="text-destructive">
-            {error}
-          </p>
-        ) : canal ? (
-          <>
-            <p className="font-medium text-foreground"># {canal.nombre}</p>
-            <p>Todavía no hay mensajes.</p>
-          </>
-        ) : (
-          <p>Esta comunidad todavía no tiene canales.</p>
-        )}
-      </div>
-
-      <div className="flex h-10 border-t px-1 pt-2">
-        <Input className="flex-grow border-0" placeholder="Escribí un mensaje" aria-label="Mensaje" />
-        <Button variant="ghost" size="icon" aria-label="Enviar">
-          <Send aria-hidden="true" />
-        </Button>
-      </div>
+      {canal && estado === "listo" ? (
+        <CanalChat key={canal.documentId} canal={canal} />
+      ) : (
+        <div className="flex flex-grow items-center justify-center p-6 text-center text-sm text-muted-foreground">
+          {estado === "cargando" ? (
+            <p role="status">Cargando canales...</p>
+          ) : estado === "error" ? (
+            <p role="alert" className="text-destructive">
+              {error}
+            </p>
+          ) : (
+            <p>Esta comunidad todavía no tiene canales.</p>
+          )}
+        </div>
+      )}
     </div>
   )
 }
