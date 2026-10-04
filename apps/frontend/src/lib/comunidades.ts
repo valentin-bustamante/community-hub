@@ -12,7 +12,7 @@ export type Canal = {
   nombre: string
 }
 
-export type RolMembresia = "propietario" | "moderador" | "miembro"
+export type RolMembresia = "propietario" | "administrador" | "miembro"
 
 export type Membresia = {
   id: number
@@ -55,7 +55,7 @@ function parseMembresia(value: unknown): Membresia {
     !isRecord(value) ||
     typeof value.id !== "number" ||
     typeof value.documentId !== "string" ||
-    (value.rol !== "propietario" && value.rol !== "moderador" && value.rol !== "miembro")
+    (value.rol !== "propietario" && value.rol !== "administrador" && value.rol !== "miembro")
   ) {
     throw new Error("Strapi devolvió una membresía con un formato inesperado.")
   }
@@ -135,6 +135,16 @@ export async function renombrarCanal(documentId: string, nombre: string): Promis
 export async function eliminarCanal(documentId: string): Promise<void> {
   const id = validarDocumentId(documentId, "el canal")
   return strapiDelete(`/api/canales/${id}`)
+}
+
+export async function cambiarRol(documentId: string, rol: RolMembresia): Promise<Membresia> {
+  const id = validarDocumentId(documentId, "la membresía")
+  return strapiRequest(`/api/membresias/${id}`, parseMembresia, { method: "PUT", body: { data: { rol } } })
+}
+
+export async function expulsarMiembro(documentId: string): Promise<void> {
+  const id = validarDocumentId(documentId, "la membresía")
+  return strapiDelete(`/api/membresias/${id}`)
 }
 
 export async function membresiasDeComunidad(documentId: string): Promise<Membresia[]> {

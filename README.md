@@ -11,7 +11,7 @@ Chat por comunidades, hecho con Strapi y Next.js. Trabajo Práctico 2 de Framewo
 - Crear comunidades y unirse con un código de invitación.
 - Canales de texto dentro de cada comunidad.
 - Mensajes en cada canal.
-- Roles por comunidad: propietario, moderador y miembro.
+- Roles por comunidad: propietario, administrador y miembro.
 
 ## Stack
 

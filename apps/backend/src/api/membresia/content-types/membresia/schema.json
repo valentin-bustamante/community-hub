@@ -16,6 +16,7 @@
       "required": true,
       "enum": [
         "propietario",
+        "administrador",
         "miembro"
       ]
     },
