@@ -123,6 +123,8 @@ export function ComunidadesRail({
           expandida={expandida}
           aria-expanded={expandida}
           onClick={onToggle}
+          // En mobile el menú se cierra con el fondo o con Escape, no hace falta este botón.
+          className="max-md:hidden"
         />
       </div>
     </nav>
