@@ -93,6 +93,9 @@ export function MiembrosPanel({ comunidadDocumentId, esPropietario }: Props) {
           {error}
         </p>
       )}
+      {estado === "listo" && miembros.length === 0 && (
+        <p className="px-4 py-2 text-xs text-muted-foreground">Todavía no hay miembros para mostrar.</p>
+      )}
 
       {grupos.map(({ rol, titulo }) => {
         const delGrupo = miembros.filter((miembro) => miembro.rol === rol)

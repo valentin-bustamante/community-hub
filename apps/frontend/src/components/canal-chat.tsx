@@ -41,6 +41,7 @@ export function CanalChat({ canal }: { canal: Canal }) {
       if (!vigente) return
       if (nuevos.length > 0) ultimaFecha.current = nuevos[nuevos.length - 1].createdAt
       setMensajes((actuales) => agregar(actuales, nuevos))
+      setError("")
       setEstado("listo")
     }
 
@@ -55,7 +56,11 @@ export function CanalChat({ canal }: { canal: Canal }) {
     const intervalo = setInterval(() => {
       mensajesDeCanal(canal.documentId, ultimaFecha.current)
         .then(recibir)
-        .catch(() => {})
+        .catch((err) => {
+          if (!vigente) return
+          setError(err instanceof Error ? err.message : "No se pudieron actualizar los mensajes.")
+          setEstado("error")
+        })
     }, INTERVALO_POLLING)
 
     return () => {

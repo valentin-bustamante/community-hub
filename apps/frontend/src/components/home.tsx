@@ -27,6 +27,7 @@ export const Home = () => {
   const [dialogo, setDialogo] = useState<ComunidadDialogMode | null>(null)
   const [comunidades, setComunidades] = useState<Comunidad[]>([])
   const [roles, setRoles] = useState<Record<string, RolMembresia>>({})
+  const [cargandoComunidades, setCargandoComunidades] = useState(true)
   const [errorComunidades, setErrorComunidades] = useState("")
   const [comunidadActiva, setComunidadActiva] = useState<Comunidad | null>(null)
   const [carga, setCarga] = useState<CargaCanales | null>(null)
@@ -48,6 +49,7 @@ export const Home = () => {
         setRoles(Object.fromEntries(propias.map(({ comunidad, rol }) => [comunidad.documentId, rol])))
       })
       .catch((err) => setErrorComunidades(err.message))
+      .finally(() => setCargandoComunidades(false))
   }, [])
 
   useEffect(() => {
@@ -102,6 +104,10 @@ export const Home = () => {
   ) : errorComunidades ? (
     <p role="alert" className="flex h-screen items-center justify-center p-6 text-center text-destructive">
       {errorComunidades}
+    </p>
+  ) : cargandoComunidades ? (
+    <p role="status" className="flex h-screen items-center justify-center p-6 text-center text-muted-foreground">
+      Cargando comunidades...
     </p>
   ) : (
     <div className="flex h-screen items-center justify-center p-6 text-center text-muted-foreground">

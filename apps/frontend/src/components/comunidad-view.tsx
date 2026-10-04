@@ -20,6 +20,8 @@ type Props = {
 
 export function ComunidadView({ comunidad, canal, rol, estado, error }: Props) {
   const [invitacion, setInvitacion] = useState("")
+  const [errorInvitacion, setErrorInvitacion] = useState("")
+  const [cargandoInvitacion, setCargandoInvitacion] = useState(false)
 
   return (
     <div className="flex h-screen flex-col">
@@ -37,17 +39,29 @@ export function ComunidadView({ comunidad, canal, rol, estado, error }: Props) {
           ) : (
             <Button
               variant="ghost"
-              onClick={() =>
-                codigoDeInvitacion(comunidad.documentId)
-                  .then(setInvitacion)
-                  .catch((err) => setInvitacion(err.message))
-              }
+              disabled={cargandoInvitacion}
+              onClick={async () => {
+                setErrorInvitacion("")
+                setCargandoInvitacion(true)
+                try {
+                  setInvitacion(await codigoDeInvitacion(comunidad.documentId))
+                } catch (err) {
+                  setErrorInvitacion(err instanceof Error ? err.message : "No se pudo obtener el código.")
+                } finally {
+                  setCargandoInvitacion(false)
+                }
+              }}
             >
-              <UserPlus aria-hidden="true" /> Invitar
+              <UserPlus aria-hidden="true" /> {cargandoInvitacion ? "Cargando..." : "Invitar"}
             </Button>
           )}
         </div>
       </div>
+      {errorInvitacion && (
+        <p role="alert" className="border-b px-3 py-2 text-sm text-destructive">
+          {errorInvitacion}
+        </p>
+      )}
 
       <div className="flex min-h-0 flex-grow">
         <div className="flex min-w-0 flex-grow flex-col justify-between pb-2">
