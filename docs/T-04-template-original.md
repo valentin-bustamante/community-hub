@@ -16,7 +16,7 @@ La distribución tenía una navegación lateral con accesos a Messages, Phone y 
 
 ## Adaptación actual
 
-La aplicación reemplaza los contactos y conversaciones ficticias por comunidades, canales, mensajes y membresías persistidos en Strapi. Retira llamadas y estados que no pertenecen al alcance del TP. Incorpora sesión de usuario, invitaciones, roles, estados de carga/error y navegación móvil. La tabla de cambios y las decisiones visuales están en [el informe](INFORME-TP2.md).
+La aplicación reemplaza los contactos y conversaciones ficticias por comunidades, canales, mensajes y membresías persistidos en Strapi. Retira llamadas y estados que no pertenecen al alcance del TP. Incorpora sesión de usuario, invitaciones, roles, estados de carga/error y navegación móvil. La tabla de cambios y las decisiones visuales están en [T-14](T-14-vista-principal.md).
 
 ## Demostración del estado previo
 

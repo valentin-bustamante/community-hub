@@ -41,4 +41,4 @@ edición desde Content Manager, contenido largo, teclado y sesión inválida.
 La matriz distingue datos reales y respuestas simuladas para revisar estados
 que no deberían darse en una comunidad válida, como cero integrantes.
 
-El informe detalla [las decisiones y limitaciones](INFORME-TP2.md).
+El [README](../README.md) documenta las decisiones técnicas y las limitaciones del prototipo.

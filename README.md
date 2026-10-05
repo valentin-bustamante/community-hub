@@ -193,12 +193,8 @@ Esos comandos crean datos de prueba: usarlos en una instancia descartable.
 Las pruebas no aceptan hosts remotos. La matriz distingue los casos reales
 de los estados simulados en el navegador.
 
-## Documentación de la entrega
+## Documentación técnica
 
-- [Informe académico con justificación, decisiones, conclusiones y bibliografía](docs/INFORME-TP2.md)
-- [Informe PDF, dentro del máximo de 20 páginas](docs/INFORME-TP2.pdf)
-- [Presentación para la exposición](docs/PRESENTACION.html): descargar el repositorio y abrir el HTML en un navegador; conservar la carpeta `assets` junto al archivo.
-- [Guía de preparación, demostración en vivo y entrega](docs/GUIA-EXPOSICION.md)
 
 - [Origen, estructura y capturas del template de referencia](docs/T-04-template-original.md)
 - [Adaptación y validación de la vista principal](docs/T-14-vista-principal.md)
@@ -247,10 +243,7 @@ docs/
 ├── assets/                  # Template original y capturas de la aplicación
 ├── T-04-template-original.md
 ├── T-14-vista-principal.md
-├── T-16-pruebas-funcionales.md
-├── INFORME-TP2.md / .pdf
-├── PRESENTACION.html
-└── GUIA-EXPOSICION.md
+└── T-16-pruebas-funcionales.md
 scripts/                     # Entorno local y verificación aislada
 tests/                       # Recorridos REST y de navegador
 README.md                    # Guía y documentación principal de entrega
@@ -261,7 +254,8 @@ personales de prueba.
 
 ## Alcance de la entrega
 
-El código y el material académico están preparados para la entrega del TP2.
+El repositorio contiene el código y la documentación técnica del TP2.
+El informe académico y la presentación se preparan y entregan por separado.
 El equipo debe completar la exposición en vivo y verificar el acceso de los
 docentes al repositorio y al tablero. Esos requisitos dependen de la cátedra
 y no se certifican mediante una compilación o un archivo.

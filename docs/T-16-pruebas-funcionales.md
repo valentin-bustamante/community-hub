@@ -84,7 +84,7 @@ simulado porque una comunidad creada correctamente siempre tiene propietario.
 | Datos modificados en CMS no tenían actualización explícita en UI. | Botón Actualizar comunidad recarga el contexto. Caso DATA-01 pasó. |
 | Paneles móviles sin gestión modal de foco. | Diálogos Radix, Tab y Escape comprobados. UI-02 pasó. |
 | Mensajes sin espacios podían ensanchar la vista. | Ajuste de palabras y ancho mínimo cero. UI-01 pasó con el límite de caracteres. |
-| Documentación de template describía todavía un chat ficticio. | T-04 e informe actualizados con cambios y capturas actuales. |
+| Documentación de template describía todavía un chat ficticio. | T-04 y T-14 actualizados con cambios y capturas actuales. |
 
 ## Capturas
 
@@ -96,5 +96,5 @@ simulado porque una comunidad creada correctamente siempre tiene propietario.
 
 Las capturas contienen únicamente datos ficticios. Los límites funcionales del
 prototipo (polling, historial, sesión local e imágenes opcionales) están en
-[el informe](INFORME-TP2.md). El acceso docente y la exposición en vivo deben
+[el README](../README.md). El acceso docente y la exposición en vivo deben
 completarse por el equipo según la organización de la cátedra.
