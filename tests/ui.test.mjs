@@ -2,12 +2,18 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { randomBytes } from 'node:crypto';
 import { mkdir } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 
 const web = process.env.TEST_WEB_URL ?? 'http://127.0.0.1:3000';
 const api = process.env.TEST_API_URL ?? 'http://127.0.0.1:1337';
 for (const url of [web, api]) assert.ok(['localhost', '127.0.0.1'].includes(new URL(url).hostname));
-const assets = new URL('../docs/assets/', import.meta.url);
+// Las ejecuciones habituales no modifican capturas versionadas.
+const assets = process.env.UPDATE_SCREENSHOTS === '1'
+  ? fileURLToPath(new URL('../docs/assets/', import.meta.url))
+  : join(tmpdir(), 'community-hub-ui');
 
 async function visible(locator) { await locator.waitFor({ state: 'visible', timeout: 20000 }); }
 async function register(page, name) {
@@ -47,7 +53,7 @@ test('Interfaz integrada: contextos, CMS, teclado, sesión y pantallas', { timeo
   const caseTest = async (name, action) => {
     console.log(`UI: ${name}`);
     await t.test(name, async () => {
-      try { await action(); } catch (error) { failed = true; await owner.screenshot({ path: "/tmp/community-ui-failure.png", fullPage: true }); throw error; }
+      try { await action(); } catch (error) { failed = true; await owner.screenshot({ path: join(assets, 'community-ui-failure.png'), fullPage: true }); throw error; }
     });
     assert.equal(failed, false, "El recorrido anterior debe pasar antes de continuar.");
   };
@@ -121,7 +127,7 @@ test('Interfaz integrada: contextos, CMS, teclado, sesión y pantallas', { timeo
       await visible(owner.getByRole('button', { name: '# editado-cms', exact: true }));
       await owner.getByRole('button', { name: '# editado-cms', exact: true }).click();
       await visible(owner.getByText('Canal de pruebas del TP2', { exact: true }));
-      } catch (error) { await admin.screenshot({ path: "/tmp/community-admin-failure.png", fullPage: true }); throw error; }
+      } catch (error) { await admin.screenshot({ path: join(assets, 'community-admin-failure.png'), fullPage: true }); throw error; }
       finally { await admin.close(); }
     });
     await caseTest('Pantallas, mensaje largo y navegación con teclado', async () => {
@@ -139,7 +145,7 @@ test('Interfaz integrada: contextos, CMS, teclado, sesión y pantallas', { timeo
       for (const [width, height] of [[1440, 900], [768, 900], [375, 812]]) {
         await owner.setViewportSize({ width, height });
         await owner.waitForTimeout(200);
-        await owner.screenshot({ path: new URL(`community-hub-${width}.png`, assets).pathname, fullPage: true });
+        await owner.screenshot({ path: join(assets, `community-hub-${width}.png`), fullPage: true });
       }
       await owner.getByRole('button', { name: 'Abrir menú', exact: true }).click();
       await visible(owner.getByRole('dialog', { name: 'Navegación de comunidades', exact: true }));
@@ -151,7 +157,7 @@ test('Interfaz integrada: contextos, CMS, teclado, sesión y pantallas', { timeo
       await owner.getByRole('dialog').waitFor({ state: 'hidden' });
       await owner.getByRole('button', { name: 'Ver miembros', exact: true }).click();
       await visible(owner.getByRole('dialog', { name: 'Integrantes de Comunidad Académica' }));
-      await owner.screenshot({ path: new URL('community-hub-miembros-mobile.png', assets).pathname });
+      await owner.screenshot({ path: join(assets, 'community-hub-miembros-mobile.png') });
       await owner.keyboard.press('Escape');
       await owner.getByRole('dialog').waitFor({ state: 'hidden' });
       await owner.getByLabel('Mensaje', { exact: true }).focus();
@@ -194,7 +200,7 @@ test('Interfaz integrada: contextos, CMS, teclado, sesión y pantallas', { timeo
       assert.deepEqual(errors, [], 'La interfaz no debe emitir excepciones');
     });
   } catch (error) {
-    await owner.screenshot({ path: '/tmp/community-ui-failure.png', fullPage: true });
+    await owner.screenshot({ path: join(assets, 'community-ui-failure.png'), fullPage: true });
     throw error;
   } finally { await browser.close(); }
 });

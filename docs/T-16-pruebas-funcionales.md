@@ -98,3 +98,12 @@ Las capturas contienen únicamente datos ficticios. Los límites funcionales del
 prototipo (polling, historial, sesión local e imágenes opcionales) están en
 [el README](../README.md). El acceso docente y la exposición en vivo deben
 completarse por el equipo según la organización de la cátedra.
+
+## Mantenimiento de las evidencias
+
+La verificación habitual guarda capturas en `community-hub-ui`, dentro de la
+carpeta temporal del sistema, y no modifica los archivos de `docs/assets`.
+Para renovar intencionalmente las capturas versionadas, ejecutar la validación
+con la variable `UPDATE_SCREENSHOTS` en `1`. Revisar las imágenes y el diff
+antes de incluirlas en un PR. Los logs de servicios también usan la carpeta
+temporal del sistema; no se requiere una ruta `/tmp` en Windows.

@@ -1,12 +1,12 @@
 # Template original de chat
 
-Dejo acá registrado el punto de partida de la interfaz antes de seguir adaptándola a Community Hub. Para reconstruirlo uso la versión que quedó en el commit [`d235a95`](https://github.com/valentin-bustamante/community-hub/blob/d235a95/apps/frontend/src/components/home.tsx), no la pantalla actual, que ya tiene cambios posteriores.
+Este documento registra el punto de partida de la interfaz antes de adaptarla a Community Hub. La referencia es la versión conservada en el commit [`d235a95`](https://github.com/valentin-bustamante/community-hub/blob/d235a95/apps/frontend/src/components/home.tsx), no la pantalla actual, que ya tiene cambios posteriores.
 
 ## Procedencia y licencia
 
-El template figura en 21st.dev como `chat-template`, variante `whatsapp-mock`, de Manoj (`rayimanoj8`) y con licencia MIT. La [ficha específica](https://21st.dev/community/components/rayimanoj8/chat-template/whatsapp-mock) y el [registro del componente](https://21st.dev/r/rayimanoj8/chat-template) aparecen en el catálogo; al verificarlos, el sitio devolvió 404. El código que quedó en el repo también enlaza la cuenta `rayimanoj8` en el menú original. Como referencia adicional, la [barra lateral de WhatsApp](https://21st.dev/@rayimanoj8/components/whatsapp-sidebar) tiene una ficha activa en 21st.dev con el mismo autor y licencia.
+La documentación histórica identifica el template como `chat-template`, variante `whatsapp-mock`, de Manoj (`rayimanoj8`) y atribuye licencia MIT. La [ficha específica](https://21st.dev/community/components/rayimanoj8/chat-template/whatsapp-mock) y el [registro del componente](https://21st.dev/r/rayimanoj8/chat-template) se registran como fuentes de origen; la comprobación histórica documentó respuestas 404. El código que quedó en el repo también enlaza la cuenta `rayimanoj8` en el menú original. Como referencia adicional, la [barra lateral de WhatsApp](https://21st.dev/@rayimanoj8/components/whatsapp-sidebar) se documentó en 21st.dev con el mismo autor y licencia. Esa ficha no sustituye la licencia del componente original.
 
-La licencia indicada para el componente es MIT. No encontré una licencia para las fotografías servidas desde el CDN, así que no las incluyo en las capturas.
+La licencia MIT es una atribución histórica; no se conserva en el repositorio una copia verificable de la licencia de la ficha original. Las fotografías servidas desde el CDN no tienen una licencia documentada en el proyecto y se excluyen de las capturas.
 
 ## Qué incluía el original
 
@@ -33,7 +33,7 @@ Si la instalación histórica encuentra dependencias opcionales ausentes para su
 
 ## Capturas del original
 
-Las capturas se hicieron ejecutando el snapshot del commit `d235a95`, antes de los cambios posteriores de autenticación. La primera muestra la pantalla completa; la segunda, el menú de cuenta abierto. Dejé vacíos los avatares que venían del CDN de 21st.dev porque no encontré una licencia para redistribuir esas fotografías.
+Las capturas se hicieron ejecutando el snapshot del commit `d235a95`, antes de los cambios posteriores de autenticación. La primera muestra la pantalla completa; la segunda, el menú de cuenta abierto. Los avatares que venían del CDN de 21st.dev permanecen vacíos porque no se documentó una licencia para redistribuir esas fotografías.
 
 ![Pantalla original del template de chat](assets/template-original.png)
 
