@@ -110,11 +110,6 @@ export async function misMembresias(): Promise<Membresia[]> {
   return strapiCollection("/api/membresias", parseMembresia)
 }
 
-export async function misComunidades(): Promise<Comunidad[]> {
-  const membresias = await misMembresias()
-  return membresias.flatMap(({ comunidad }) => (comunidad ? [comunidad] : []))
-}
-
 export async function canalesDeComunidad(documentId: string): Promise<Canal[]> {
   const id = validarDocumentId(documentId, "la comunidad")
   return strapiCollection(`/api/canales?comunidad=${id}`, parseCanal)

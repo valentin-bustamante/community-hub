@@ -178,8 +178,13 @@ npm run verify
 `verify` requiere la compilación previa. Inicia Strapi con una base SQLite
 descartable en el puerto 1337 y el frontend compilado en el puerto 3100. Cerrar
 antes cualquier servicio local que ocupe esos puertos. El build debe usar la
-URL de API predeterminada `http://localhost:1337`. El script crea cuentas
-temporales, ejecuta los recorridos y elimina su base al terminar.
+URL de API predeterminada `http://localhost:1337`. El script fuerza SQLite, crea cuentas
+temporales, ejecuta los recorridos y elimina su base al terminar. Los logs de
+los servicios quedan en la carpeta temporal del sistema (`community-service-0.log`
+y `community-service-1.log`). Las capturas de cada ejecución quedan en la
+subcarpeta temporal `community-hub-ui`; el comando no modifica las capturas
+versionadas. Para actualizarlas expresamente, definir `UPDATE_SCREENSHOTS=1`
+antes de ejecutar la verificación y revisar el diff antes de incluirlas en un PR.
 
 Para validar solo la API, sin instalar Chromium:
 
@@ -195,9 +200,9 @@ de los estados simulados en el navegador.
 
 ## Documentación técnica
 
-
 - [Origen, estructura y capturas del template de referencia](docs/T-04-template-original.md)
 - [Adaptación y validación de la vista principal](docs/T-14-vista-principal.md)
+- [Arquitectura, decisiones y mantenimiento](docs/ARQUITECTURA.md)
 - [Matriz de pruebas funcionales y resultados](docs/T-16-pruebas-funcionales.md)
 - [Instrucciones específicas del frontend](apps/frontend/README.md)
 - [Modelos, endpoints y permisos del backend](apps/backend/README.md)
@@ -243,6 +248,7 @@ docs/
 ├── assets/                  # Template original y capturas de la aplicación
 ├── T-04-template-original.md
 ├── T-14-vista-principal.md
+├── ARQUITECTURA.md
 └── T-16-pruebas-funcionales.md
 scripts/                     # Entorno local y verificación aislada
 tests/                       # Recorridos REST y de navegador

@@ -1,6 +1,8 @@
 import { spawn } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
 import { rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 
 const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
@@ -9,7 +11,7 @@ const children = [];
 const apiOnly = process.argv.includes('--api');
 const api = 'http://127.0.0.1:1337';
 const web = 'http://127.0.0.1:3100';
-const testEnv = { ...process.env, HOST: '127.0.0.1', PORT: '1337', DATABASE_FILENAME: database, TEST_API_URL: api, TEST_WEB_URL: web, NEXT_PUBLIC_STRAPI_URL: api, NEXT_TELEMETRY_DISABLED: '1', STRAPI_TELEMETRY_DISABLED: 'true' };
+const testEnv = { ...process.env, HOST: '127.0.0.1', PORT: '1337', DATABASE_CLIENT: 'sqlite', DATABASE_FILENAME: database, TEST_API_URL: api, TEST_WEB_URL: web, NEXT_PUBLIC_STRAPI_URL: api, NEXT_TELEMETRY_DISABLED: '1', STRAPI_TELEMETRY_DISABLED: 'true' };
 function start(args) {
   const child = spawn(npm, args, { env: testEnv, stdio: ['ignore', 'pipe', 'pipe'], shell: process.platform === 'win32', detached: process.platform !== 'win32' });
   children.push(child);
@@ -49,7 +51,11 @@ try {
   process.exitCode = 1;
 } finally {
   for (const [i, child] of children.entries()) {
-    await writeFile(`/tmp/community-service-${i}.log`, child.logs());
+    try {
+      await writeFile(join(tmpdir(), `community-service-${i}.log`), child.logs());
+    } catch (error) {
+      console.error(`No se pudo guardar el log del servicio: ${error.message}`);
+    }
     if (process.platform === 'win32') spawn('taskkill', ['/pid', String(child.pid), '/T', '/F']);
     else { try { process.kill(-child.pid, 'SIGTERM'); } catch {} }
   }

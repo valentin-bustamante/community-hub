@@ -19,21 +19,8 @@ const permisosAutenticado = [
 ];
 
 export default {
-  /**
-   * An asynchronous register function that runs before
-   * your application is initialized.
-   *
-   * This gives you an opportunity to extend code.
-   */
-  register(/* { strapi }: { strapi: Core.Strapi } */) {},
-
-  /**
-   * An asynchronous bootstrap function that runs before
-   * your application gets started.
-   *
-   * This gives you an opportunity to set up your data model,
-   * run jobs, or perform some special logic.
-   */
+  // Los permisos de acceso a la API se crean al arrancar en una instalación nueva.
+  // Cada controlador comprueba además la pertenencia y el rol en el recurso.
   async bootstrap({ strapi }: { strapi: Core.Strapi }) {
     const rol = await strapi.db
       .query('plugin::users-permissions.role')

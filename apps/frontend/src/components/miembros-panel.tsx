@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { MoreHorizontal, ShieldMinus, ShieldPlus, UserMinus, Users, X } from "lucide-react"
+import { MoreHorizontal, ShieldMinus, ShieldPlus, UserMinus, Users } from "lucide-react"
 
 import {
   cambiarRol,
@@ -29,11 +29,9 @@ type Props = {
   comunidadDocumentId: string
   esPropietario: boolean
   className?: string
-  // Si se pasa, muestra un botón para cerrar el panel (solo en mobile).
-  onCerrar?: () => void
 }
 
-export function MiembrosPanel({ comunidadDocumentId, esPropietario, className, onCerrar }: Props) {
+export function MiembrosPanel({ comunidadDocumentId, esPropietario, className }: Props) {
   const [miembros, setMiembros] = useState<Membresia[]>([])
   const [estado, setEstado] = useState<"cargando" | "listo" | "error">("cargando")
   const [error, setError] = useState("")
@@ -85,16 +83,7 @@ export function MiembrosPanel({ comunidadDocumentId, esPropietario, className, o
       <div className="flex h-10 shrink-0 items-center gap-2 px-4 text-sm font-semibold">
         <Users className="size-4 shrink-0" aria-hidden="true" />
         Miembros
-        {onCerrar && (
-          <button
-            type="button"
-            onClick={onCerrar}
-            aria-label="Cerrar miembros"
-            className="ml-auto flex size-6 cursor-pointer items-center justify-center rounded-md text-muted-foreground outline-none hover:bg-secondary hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring md:hidden"
-          >
-            <X className="size-4" aria-hidden="true" />
-          </button>
-        )}
+
       </div>
 
       {estado === "cargando" && (
