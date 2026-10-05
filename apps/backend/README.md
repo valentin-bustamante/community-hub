@@ -7,11 +7,11 @@ API de Community Hub, hecha con Strapi 5 y SQLite.
 Desde la raíz del repositorio:
 
 ```sh
-cp apps/backend/.env.example apps/backend/.env
+npm run setup
 npm run dev:backend
 ```
 
-En `.env`, reemplazá cada `tobemodified` por un texto aleatorio. El admin queda en http://localhost:1337/admin.
+El script genera secretos aleatorios y conserva una configuración existente. El admin queda en http://localhost:1337/admin.
 
 ## Modelos
 
@@ -28,6 +28,7 @@ Todos requieren el header `Authorization: Bearer <jwt>`. El token se obtiene con
 
 | Método y ruta | Qué hace | Quién puede |
 | --- | --- | --- |
+| `GET /api/comunidades` | Lista únicamente las comunidades propias, sin códigos de invitación | Usuario autenticado |
 | `POST /api/comunidades` | Crea la comunidad, su canal `general` y la membresía de propietario | Cualquier usuario |
 | `POST /api/comunidades/unirse` | Une al usuario con un código de invitación | Cualquier usuario |
 | `GET /api/comunidades/:id` | Devuelve la comunidad, con el código de invitación | Miembros |
@@ -73,3 +74,10 @@ Ejemplos de cuerpo:
 Los permisos del rol **Authenticated** se cargan al iniciar Strapi, desde `src/index.ts`. No hay que configurarlos en el panel. Para habilitar una acción nueva, se agrega a esa lista.
 
 El control por comunidad y por rol está en los controladores de `src/api/`.
+
+## Validación
+
+Desde la raíz, ejecutar `npm run build` y `npm run verify:api`. La verificación
+inicia una base descartable y comprueba los controles de acceso sin modificar
+los datos de la instalación local. Los modelos de blog de ejemplo del
+generador se eliminaron; solo se conservan las entidades del dominio.

@@ -23,7 +23,15 @@ export async function authenticate(mode: AuthMode, fields: AuthFields) {
     body: JSON.stringify(body),
   })
   const json = await res.json()
-  if (!res.ok) throw new Error(json?.error?.message ?? "No se pudo completar la operación")
+  if (!res.ok) {
+    const message = json?.error?.message
+    const traducciones: Record<string, string> = {
+      "Invalid identifier or password": "El email o la contraseña son incorrectos.",
+      "Email or Username are already taken": "El email o el nombre de usuario ya están registrados.",
+      "Your account has been blocked by an administrator": "Tu cuenta está bloqueada.",
+    }
+    throw new Error(traducciones[message] ?? message ?? "No se pudo completar la operación")
+  }
 
   localStorage.setItem(TOKEN_KEY, json.jwt)
   localStorage.setItem(USER_KEY, json.user.username)

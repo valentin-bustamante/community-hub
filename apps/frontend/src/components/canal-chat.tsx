@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import { Send } from "lucide-react"
 
+import { StrapiApiError } from "@/lib/strapi"
 import { getUsername } from "@/lib/auth"
 import type { Canal } from "@/lib/comunidades"
 import { enviarMensaje, mensajesDeCanal, type Mensaje } from "@/lib/mensajes"
@@ -41,6 +42,7 @@ export function CanalChat({ canal }: { canal: Canal }) {
       if (!vigente) return
       if (nuevos.length > 0) ultimaFecha.current = nuevos[nuevos.length - 1].createdAt
       setMensajes((actuales) => agregar(actuales, nuevos))
+      setError("")
       setEstado("listo")
     }
 
@@ -55,7 +57,12 @@ export function CanalChat({ canal }: { canal: Canal }) {
     const intervalo = setInterval(() => {
       mensajesDeCanal(canal.documentId, ultimaFecha.current)
         .then(recibir)
-        .catch(() => {})
+        .catch((err) => {
+          if (!vigente) return
+          if (err instanceof StrapiApiError && [401, 403, 404].includes(err.status)) setMensajes([])
+          setError(err instanceof Error ? err.message : "No se pudieron actualizar los mensajes.")
+          setEstado("error")
+        })
     }, INTERVALO_POLLING)
 
     return () => {
@@ -103,13 +110,13 @@ export function CanalChat({ canal }: { canal: Canal }) {
               const propio = mensaje.autor === usuario
               return (
                 <li key={mensaje.documentId} className={cn("flex flex-col", propio && "items-end")}>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="max-w-full break-words text-xs text-muted-foreground">
                     <span className="font-medium text-foreground">{mensaje.autor}</span>{" "}
                     <time dateTime={mensaje.createdAt}>{hora.format(new Date(mensaje.createdAt))}</time>
                   </p>
                   <p
                     className={cn(
-                      "max-w-[80%] rounded-md px-3 py-2 text-sm break-words whitespace-pre-wrap",
+                      "min-w-0 max-w-[80%] rounded-md px-3 py-2 text-sm wrap-anywhere whitespace-pre-wrap",
                       propio ? "bg-primary text-primary-foreground" : "bg-secondary"
                     )}
                   >

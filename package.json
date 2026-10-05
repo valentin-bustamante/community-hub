@@ -8,7 +8,13 @@
     "dev": "concurrently -n backend,frontend -c blue,green \"npm run develop -w backend\" \"npm run dev -w frontend\"",
     "dev:backend": "npm run develop -w backend",
     "dev:frontend": "npm run dev -w frontend",
-    "build": "npm run build --workspaces"
+    "build": "npm run build --workspaces",
+    "setup": "node scripts/setup-env.mjs",
+    "lint": "npm run lint -w frontend",
+    "test:api": "node --test tests/api.test.mjs",
+    "verify": "node scripts/verify.mjs",
+    "verify:api": "node scripts/verify.mjs --api",
+    "test:ui": "node --test tests/ui.test.mjs"
   },
   "allowScripts": {
     "better-sqlite3@12.8.0": true,
@@ -18,7 +24,8 @@
   },
   "devDependencies": {
     "@swc/core": "1.16.2",
-    "concurrently": "^10.0.5"
+    "concurrently": "^10.0.5",
+    "playwright": "^1.62.1"
   },
   "overrides": {
     "@swc/core": "1.16.2",
