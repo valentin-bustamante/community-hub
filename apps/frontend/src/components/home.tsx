@@ -1,7 +1,7 @@
 "use client"
 
 // ** Imports: React & Hooks **
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 
 import {
   canalesDeComunidad,
@@ -25,6 +25,8 @@ type CargaCanales = {
 
 // ** Home Component **
 export const Home = () => {
+  const [revision, setRevision] = useState(0)
+  const seleccion = useRef<string | null>(null)
   const [dialogo, setDialogo] = useState<ComunidadDialogMode | null>(null)
   const [comunidades, setComunidades] = useState<Comunidad[]>([])
   const [roles, setRoles] = useState<Record<string, RolMembresia>>({})
@@ -43,15 +45,22 @@ export const Home = () => {
   const canalActivo = canales.find((canal) => canal.documentId === canalId) ?? canales[0] ?? null
 
   useEffect(() => {
+    let vigente = true
     misMembresias()
       .then((membresias) => {
+        if (!vigente) return
         const propias = membresias.flatMap(({ comunidad, rol }) => (comunidad ? [{ comunidad, rol }] : []))
         setComunidades(propias.map(({ comunidad }) => comunidad))
+        setErrorComunidades("")
+        setComunidadActiva((actual) => actual
+          ? propias.find(({ comunidad }) => comunidad.documentId === actual.documentId)?.comunidad ?? null
+          : null)
         setRoles(Object.fromEntries(propias.map(({ comunidad, rol }) => [comunidad.documentId, rol])))
       })
-      .catch((err) => setErrorComunidades(err.message))
-      .finally(() => setCargandoComunidades(false))
-  }, [])
+      .catch((err) => { if (vigente) setErrorComunidades(err.message) })
+      .finally(() => { if (vigente) setCargandoComunidades(false) })
+    return () => { vigente = false }
+  }, [revision])
 
   useEffect(() => {
     if (!comunidadId) return
@@ -68,19 +77,22 @@ export const Home = () => {
     return () => {
       vigente = false
     }
-  }, [comunidadId])
+  }, [comunidadId, revision])
 
   function seleccionarComunidad(comunidad: Comunidad) {
     if (comunidad.documentId === comunidadId) {
       setCanalesAbiertos((abiertos) => !abiertos)
     } else {
+      seleccion.current = comunidad.documentId
+      setCanalId(null)
+      setDialogoCanal(null)
       setComunidadActiva(comunidad)
       setCanalesAbiertos(true)
     }
   }
 
   function aplicarCambioDeCanal(mode: CanalDialogMode, canal: Canal) {
-    if (!cargaActual) return
+    if (!cargaActual || seleccion.current !== comunidadId) return
     const actualizados =
       mode === "crear"
         ? [...canales, canal]
@@ -91,16 +103,23 @@ export const Home = () => {
     if (mode !== "eliminar") setCanalId(canal.documentId)
   }
 
+  function actualizar() {
+    setCarga(null)
+    setCargandoComunidades(true)
+    setRevision((actual) => actual + 1)
+  }
+
   const esPropietario = comunidadId !== null && roles[comunidadId] === "propietario"
 
   const vistaPrincipal = comunidadActiva ? (
     <ComunidadView
-      key={comunidadActiva.documentId}
+      key={`${comunidadActiva.documentId}:${revision}`}
       comunidad={comunidadActiva}
       canal={canalActivo}
       rol={comunidadId ? roles[comunidadId] : undefined}
-      estado={estadoCanales}
-      error={cargaActual?.error ?? ""}
+      estado={errorComunidades ? "error" : estadoCanales}
+      error={errorComunidades || cargaActual?.error || ""}
+      onActualizar={actualizar}
     />
   ) : (
     <div className="flex h-dvh flex-col">
@@ -111,6 +130,7 @@ export const Home = () => {
       {errorComunidades ? (
         <p role="alert" className="flex flex-grow items-center justify-center p-6 text-center text-destructive">
           {errorComunidades}
+          <button type="button" onClick={actualizar} className="ml-3 underline">Reintentar</button>
         </p>
       ) : cargandoComunidades ? (
         <p role="status" className="flex flex-grow items-center justify-center p-6 text-center text-muted-foreground">
@@ -169,6 +189,8 @@ export const Home = () => {
             ...prev,
             [comunidad.documentId]: dialogo === "crear" ? "propietario" : "miembro",
           }))
+          seleccion.current = comunidad.documentId
+          setCanalId(null)
           setComunidadActiva(comunidad)
           setCanalesAbiertos(true)
         }}

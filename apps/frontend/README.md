@@ -32,3 +32,10 @@ La sesión se guarda en `localStorage`. Si el token vence, se cierra la sesión 
 
 La vista principal y sus diferencias respecto del template están descritas en
 [`docs/T-14-vista-principal.md`](../../docs/T-14-vista-principal.md).
+
+El botón **Actualizar comunidad** vuelve a consultar comunidades, canales,
+roles, miembros y mensajes. Usarlo después de guardar una edición en el CMS.
+
+Los paneles móviles usan diálogos de Radix para gestionar el foco, recorrer
+controles con Tab y cerrar con Escape. `npm run verify` desde la raíz valida
+los recorridos con Playwright sobre el frontend de producción.

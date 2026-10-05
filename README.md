@@ -18,8 +18,8 @@ consume la API autenticada y actualiza la experiencia de usuario.
 La aplicación cubre autenticación, comunidades, canales, mensajes y roles de
 propietario, administrador y miembro. La estructura de navegación y el panel
 de integrantes se ajustan al tamaño de pantalla. La validación funcional se
-registra por recorrido, con los resultados observados y las limitaciones que
-siguen abiertas.
+registra por recorrido y se reproduce con pruebas de API y de navegador sobre
+una base descartable.
 
 ## Objetivos
 
@@ -108,7 +108,7 @@ de dominio aplican además la autorización por recurso y por comunidad.
 
 ## Requisitos
 
-- Node.js 20.9 o superior, dentro del rango admitido por Strapi (`<=26.x`).
+- Node.js 22 o 24 LTS recomendado; mínimo 20.9, dentro del rango admitido por Strapi (`<=26.x`).
 - npm.
 - Git para clonar el repositorio.
 
@@ -123,22 +123,15 @@ Desde la raíz del repositorio:
 npm ci
 ```
 
-Crear el archivo de entorno del backend. En Windows PowerShell:
-
-```powershell
-Copy-Item apps/backend/.env.example apps/backend/.env
-```
-
-En macOS o Linux:
+Generar el entorno del backend con secretos aleatorios (se conserva un `.env`
+existente):
 
 ```sh
-cp apps/backend/.env.example apps/backend/.env
+npm run setup
 ```
 
-Reemplazar los valores de ejemplo de `APP_KEYS`, `API_TOKEN_SALT`,
-`ADMIN_JWT_SECRET`, `TRANSFER_TOKEN_SALT`, `JWT_SECRET` y `ENCRYPTION_KEY` por
-valores aleatorios propios. No usar los valores de ejemplo en un entorno
-compartido o publicado, ni subir el archivo `.env` al repositorio.
+También se puede copiar `apps/backend/.env.example` a `.env` y reemplazar sus
+valores de ejemplo. No versionar secretos ni bases de datos locales.
 
 Iniciar Strapi y Next.js juntos:
 
@@ -168,31 +161,44 @@ Si Strapi usa otra URL, copiar `apps/frontend/.env.example` a
 
 ## Comprobaciones
 
-Lint de los componentes frontend modificados:
+Comprobación estática completa y compilación:
 
 ```sh
-npm run lint --workspace=frontend -- src/components/sidebar/app-sidebar.tsx src/components/miembros-panel.tsx src/components/comunidad-view.tsx src/components/home.tsx src/components/canal-chat.tsx
-```
-
-Compilación de producción y verificación de tipos del frontend:
-
-```sh
-npm run build --workspace=frontend
-```
-
-Compilación de todos los workspaces:
-
-```sh
+npm run lint
 npm run build
 ```
 
-No hay un runner automatizado de pruebas funcionales configurado para el
-frontend. Los recorridos manuales y su resultado se registran en
-[`docs/T-16-pruebas-funcionales.md`](docs/T-16-pruebas-funcionales.md). Esa
-matriz separa los casos que pasaron de aquellos pendientes y detalla el
-entorno de ejecución.
+Pruebas funcionales reproducibles (Node.js y Chromium):
+
+```sh
+npx playwright install chromium
+npm run verify
+```
+
+`verify` requiere la compilación previa. Inicia Strapi con una base SQLite
+descartable en el puerto 1337 y el frontend compilado en el puerto 3100. Cerrar
+antes cualquier servicio local que ocupe esos puertos. El build debe usar la
+URL de API predeterminada `http://localhost:1337`. El script crea cuentas
+temporales, ejecuta los recorridos y elimina su base al terminar.
+
+Para validar solo la API, sin instalar Chromium:
+
+```sh
+npm run verify:api
+```
+
+También se pueden ejecutar `npm run test:api` y `npm run test:ui` contra
+servicios locales ya iniciados, configurando `TEST_API_URL` y `TEST_WEB_URL`.
+Esos comandos crean datos de prueba: usarlos en una instancia descartable.
+Las pruebas no aceptan hosts remotos. La matriz distingue los casos reales
+de los estados simulados en el navegador.
 
 ## Documentación de la entrega
+
+- [Informe académico con justificación, decisiones, conclusiones y bibliografía](docs/INFORME-TP2.md)
+- [Informe PDF, dentro del máximo de 20 páginas](docs/INFORME-TP2.pdf)
+- [Presentación para la exposición](docs/PRESENTACION.html): descargar el repositorio y abrir el HTML en un navegador; conservar la carpeta `assets` junto al archivo.
+- [Guía de preparación, demostración en vivo y entrega](docs/GUIA-EXPOSICION.md)
 
 - [Origen, estructura y capturas del template de referencia](docs/T-04-template-original.md)
 - [Adaptación y validación de la vista principal](docs/T-14-vista-principal.md)
@@ -227,9 +233,9 @@ las fuentes consultadas están en
   una conexión de tiempo real.
 - **Datos de desarrollo:** la instalación usa SQLite local. No incluye
   sincronización, despliegue ni configuración de una base de producción.
-- **Pruebas manuales:** el informe indica exactamente qué casos se ejecutaron.
-  No se presenta como cobertura automatizada ni se marca como pasada una
-  prueba que no se observó.
+- **Pruebas:** el runner nativo de Node.js valida la API y Playwright recorre
+  la interfaz. Las colecciones vacías y los errores de conexión se simulan
+  explícitamente para revisar sus estados visuales.
 
 ## Estructura del repositorio
 
@@ -238,12 +244,24 @@ apps/
 ├── backend/                 # Strapi, API, modelos y permisos
 └── frontend/                # Next.js, pantallas y cliente de API
 docs/
-├── assets/                  # Capturas históricas del template
+├── assets/                  # Template original y capturas de la aplicación
 ├── T-04-template-original.md
 ├── T-14-vista-principal.md
-└── T-16-pruebas-funcionales.md
+├── T-16-pruebas-funcionales.md
+├── INFORME-TP2.md / .pdf
+├── PRESENTACION.html
+└── GUIA-EXPOSICION.md
+scripts/                     # Entorno local y verificación aislada
+tests/                       # Recorridos REST y de navegador
 README.md                    # Guía y documentación principal de entrega
 ```
 
 No subir `.env`, bases SQLite locales, `node_modules`, compilaciones ni datos
 personales de prueba.
+
+## Alcance de la entrega
+
+El código y el material académico están preparados para la entrega del TP2.
+El equipo debe completar la exposición en vivo y verificar el acceso de los
+docentes al repositorio y al tablero. Esos requisitos dependen de la cátedra
+y no se certifican mediante una compilación o un archivo.

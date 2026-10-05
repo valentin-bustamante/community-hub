@@ -14,11 +14,22 @@ La pantalla estaba hecha como un componente React dentro de Next.js. Usaba Tailw
 
 La distribución tenía una navegación lateral con accesos a Messages, Phone y Status, además de Settings y un menú de cuenta. El área principal se dividía en dos paneles: a la izquierda, búsqueda, filtros de no leídos y borradores y una lista de contactos; a la derecha, el contacto seleccionado, acciones de llamada y una caja para escribir mensajes. Los contactos, nombres, avatares y textos eran datos de ejemplo definidos en el propio componente. No era un chat conectado a una API.
 
-## Qué se adaptó para Community Hub
+## Adaptación actual
 
-Al comparar esa versión con la actual, la navegación de Messages/Phone/Status y el bloque independiente de Settings/cuenta dejaron de estar en la barra lateral. El usuario autenticado y la acción para cerrar sesión ahora aparecen debajo de la lista de contactos. También se ajustó el área desplazable de esa lista para que pueda reducirse dentro del panel.
+La aplicación reemplaza los contactos y conversaciones ficticias por comunidades, canales, mensajes y membresías persistidos en Strapi. Retira llamadas y estados que no pertenecen al alcance del TP. Incorpora sesión de usuario, invitaciones, roles, estados de carga/error y navegación móvil. La tabla de cambios y las decisiones visuales están en [el informe](INFORME-TP2.md).
 
-La lista de contactos y la conversación siguen siendo de muestra; esta pantalla no representa todavía comunidades, canales ni mensajes persistidos. Esos cambios corresponden a las tareas de adaptación de navegación y vista principal, no a la procedencia del template.
+## Demostración del estado previo
+
+Las capturas siguientes muestran la versión integrada sin personalización funcional. Para ejecutar el código histórico en una carpeta independiente:
+
+```sh
+git worktree add ../community-hub-original d235a95
+cd ../community-hub-original
+npm ci
+npm run dev:frontend -- --port 3001
+```
+
+Si la instalación histórica encuentra dependencias opcionales ausentes para su plataforma, ejecutar `npm install` dentro de esa carpeta histórica. La versión final y su bloqueo corregido permanecen independientes. Para la comparación del framework/CMS sin contenido del dominio, mostrar sus pantallas iniciales en instalaciones nuevas y luego el modelo de esta implementación. No hay una segunda copia del template en el código final.
 
 ## Capturas del original
 

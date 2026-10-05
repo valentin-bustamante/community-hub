@@ -74,6 +74,7 @@ export function ComunidadDialog({ mode, onClose, onDone }: Props) {
           </DialogHeader>
           <Input
             name="valor"
+            aria-label={mode === "crear" ? "Nombre de comunidad" : "Código de invitación"}
             required
             minLength={mode === "crear" ? 5 : undefined}
             maxLength={mode === "crear" ? 30 : undefined}

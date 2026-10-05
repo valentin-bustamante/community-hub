@@ -10,28 +10,33 @@ const membresiaUid = 'api::membresia.membresia';
 const canalUid = 'api::canal.canal';
 
 export default factories.createCoreController(comunidadUid, ({ strapi }) => ({
+  // Los endpoints REST exponen únicamente comunidades del usuario autenticado.
+  async find(ctx) {
+    const user = ctx.state.user;
+    if (!user) return ctx.unauthorized();
+    const propias = await strapi.db.query(membresiaUid).findMany({
+      where: { usuario: user.id }, populate: ['comunidad'],
+    });
+    ctx.body = { data: propias.flatMap(({ comunidad }) => comunidad ? [{
+      id: comunidad.id, documentId: comunidad.documentId, nombre: comunidad.nombre,
+    }] : []) };
+  },
+
   async findOne(ctx) {
     const user = ctx.state.user;
-    const response = await super.findOne(ctx);
-
-    if (!user || !response?.data) {
-      return response;
-    }
-
+    if (!user) return ctx.unauthorized();
     const comunidad = await strapi.db.query(comunidadUid).findOne({
       where: { documentId: ctx.params.id },
     });
-    const membresia =
-      comunidad &&
-      (await strapi.db.query(membresiaUid).findOne({
-        where: { usuario: user.id, comunidad: comunidad.id },
-      }));
-
-    if (membresia) {
-      response.data.codigoInvitacion = comunidad.codigoInvitacion;
-    }
-
-    return response;
+    if (!comunidad) return ctx.notFound('No se encontró la comunidad.');
+    const membresia = await strapi.db.query(membresiaUid).findOne({
+      where: { usuario: user.id, comunidad: comunidad.id },
+    });
+    if (!membresia) return ctx.forbidden('No pertenecés a esta comunidad.');
+    ctx.body = { data: {
+      id: comunidad.id, documentId: comunidad.documentId,
+      nombre: comunidad.nombre, codigoInvitacion: comunidad.codigoInvitacion,
+    } };
   },
 
   async create(ctx) {

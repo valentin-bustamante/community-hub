@@ -71,7 +71,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
             {mode === "registro" && (
               <label className="flex flex-col gap-2 text-sm">
                 Nombre de usuario
-                <Input name="username" required minLength={3} autoComplete="username" />
+                <Input name="username" required minLength={3} maxLength={30} autoComplete="username" />
               </label>
             )}
             <label className="flex flex-col gap-2 text-sm">

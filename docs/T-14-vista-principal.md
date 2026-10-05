@@ -1,57 +1,44 @@
-# Vista principal — T-14
+# Adaptación de la vista principal (T-14)
 
-La pantalla principal ya no muestra el contenido de ejemplo del template. Al
-elegir una comunidad, el encabezado muestra su nombre y el canal seleccionado;
-el centro de la pantalla carga los mensajes de ese canal y el panel lateral
-muestra a sus integrantes. Las acciones para administrar integrantes aparecen
-solo para quien tiene el rol de propietario. La navegación de comunidades y
-canales queda en la barra lateral.
+La aplicación reemplaza el contenido ficticio del template por información
+persistida en Strapi. El encabezado identifica la comunidad y el canal; el
+chat muestra sus mensajes y el panel lateral agrupa integrantes por rol.
+La navegación y las acciones cambian según el contexto y la membresía.
 
-También dejé explícitos los estados que antes podían confundirse con datos
-vacíos: mientras se cargan las comunidades se informa que la consulta sigue en
-curso; si falla una consulta se muestra el error; y las listas vacías tienen
-un mensaje propio. Si falla la consulta del código de invitación, el error se
-muestra aparte y se puede volver a intentar.
+## Cambios implementados
 
-## Diferencias respecto del template
+| Área | Comportamiento final |
+| --- | --- |
+| Contexto | Cambiar de comunidad descarta la selección previa de canal y las respuestas tardías. |
+| Estados | Comunidades, canales, miembros y mensajes muestran carga, error y colección vacía. |
+| Permisos | El propietario administra canales y miembros. El backend comprueba pertenencia y rol por recurso. |
+| Datos del CMS | Actualizar comunidad recarga membresías, nombres, canales, integrantes y chat. |
+| Contenido largo | Navegación con nombres truncados y mensajes con ajuste de palabras incluso sin espacios. |
+| Teléfonos | Navegación y miembros en diálogos de Radix con foco, Tab y Escape. |
+| Identidad | Título Community Hub, descripción, favicon e idioma español. |
+| Sesión | Cierre explícito, limpieza ante 401 y errores de acceso en español. |
 
-- Reemplacé los servidores, canales y mensajes de muestra por comunidades,
-  canales, mensajes y membresías consultados a Strapi.
-- El contenido central cambia con la comunidad y el canal activos; si no hay
-  una comunidad seleccionada se invita a elegir o crear una.
-- El panel de miembros refleja los roles reales. Solo el propietario ve las
-  acciones para cambiar roles o expulsar integrantes. En pantallas angostas se
-  abre como un panel desplegable para no quitarle espacio al chat.
-- Los mensajes largos tienen salto de línea. Las consultas que fallan se
-  muestran con una alerta y una respuesta correcta posterior limpia el error.
-- En teléfonos, el rail de comunidades se reemplaza por un selector de
-  navegación desplegable; el rail completo se mantiene en escritorio. Esta
-  adaptación responsive llegó a `main` en el PR #38 de T-15 y es la que usa
-  esta rama; el panel de integrantes se despliega desde el encabezado.
+El icono opcional del CMS no se utiliza en la vista: se muestran iniciales.
+Los administradores de comunidad se distinguen visualmente, pero solo el
+propietario dispone de acciones de administración en este alcance.
 
-## Validación realizada
+## Comparación visual
 
-Probé la pantalla en Next.js y Strapi con una base SQLite aislada y dos cuentas
-temporales. No guardé credenciales, tokens ni códigos de invitación.
+El [template original](T-04-template-original.md) conserva su snapshot previo
+y la procedencia. Las capturas actuales provienen de la ejecución documentada
+en [T-16](T-16-pruebas-funcionales.md), con datos ficticios.
 
-- Creé una comunidad, invité a una segunda cuenta y confirmé que se vieran los
-  nombres y roles de sus integrantes.
-- Como propietaria, creé un segundo canal y cambié entre canales. El encabezado,
-  el historial y el estado sin mensajes cambiaron con la selección.
-- Comprobé que la propietaria puede dar y quitar el rol de administrador, y
-  que una cuenta miembro no ve esas acciones.
-- Envié un mensaje largo y confirmé que aparece en el historial.
-- Apagué Strapi: la consulta de invitación y la actualización de mensajes
-  mostraron errores, sin ocultarlos como si fueran datos válidos.
-- Probé una contraseña incorrecta y un token inválido. El primero mostró el
-  error de Strapi en inglés; el segundo cerró la sesión y volvió a `/login`.
+![Vista final de escritorio](assets/community-hub-1440.png)
 
-La primera versión llegó a medir 448 px de ancho con un viewport de 375 px.
-Antes de que se integrara el PR #38, medí la versión de trabajo en viewports de
-375 × 812, 768 × 900 y 1440 × 900 px: el ancho del documento y del `body`
-coincidió con el ancho del viewport en los tres tamaños. También comprobé en
-móvil el selector de comunidades y el panel de integrantes de la versión de
-trabajo previa al merge de #38. La comparación visual con el template original
-está en [T-04-template-original.md](T-04-template-original.md); el detalle de la
-validación funcional y sus límites está en
-[T-16-pruebas-funcionales.md](T-16-pruebas-funcionales.md).
+![Vista final en teléfono](assets/community-hub-375.png)
+
+![Panel de miembros en teléfono](assets/community-hub-miembros-mobile.png)
+
+## Verificación
+
+El recorrido automatizado comprueba registro, comunidades, canales, roles,
+edición desde Content Manager, contenido largo, teclado y sesión inválida.
+La matriz distingue datos reales y respuestas simuladas para revisar estados
+que no deberían darse en una comunidad válida, como cero integrantes.
+
+El informe detalla [las decisiones y limitaciones](INFORME-TP2.md).

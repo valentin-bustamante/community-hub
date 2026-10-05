@@ -1,74 +1,100 @@
-# Pruebas funcionales — T-16
+# Pruebas funcionales (T-16)
 
-Rehice la matriz sobre la versión actual de la aplicación. Las pruebas se
-hicieron con cuentas descartables y una base SQLite aislada; no guardé
-contraseñas, tokens ni códigos de invitación. Los casos no ejecutados quedan
-marcados como pendientes, aunque la inspección del código sugiera que deberían
-funcionar.
+## Entorno y reproducción
 
-## Entorno
+La revisión final usa el código consolidado de T-14 y T-16, una base SQLite
+descartable y cuentas ficticias creadas durante la prueba. No se guardan
+contraseñas, JWT ni códigos de invitación. La matriz sustituye los resultados
+parciales previos y describe exactamente la fuente de cada comprobación.
 
 | Elemento | Configuración |
 | --- | --- |
-| Frontend | Next.js 16.3.8, `http://localhost:3000` |
-| CMS | Strapi 5.55.1, `http://localhost:1337` |
-| Node.js | 24.15.0 |
-| Base de datos | SQLite aislada en `apps/backend/.tmp`; eliminada al terminar |
-| Navegador | Navegador integrado, viewport emulado de 375 × 812 px |
-| Fecha | 2026-10-04 |
+| Fecha local | 4 de octubre de 2026, America/Argentina/Buenos_Aires |
+| Node / npm | Node 24.19.0 / npm 11.9.0 |
+| Frontend | Next.js 16.3.8, React 19.2.8, build de producción |
+| CMS | Strapi 5.55.1 y SQLite con base temporal independiente |
+| Navegador | Chromium 153 headless, Playwright 1.62.1 |
+| Tamaños | 1440 × 900, 768 × 900 y 375 × 812 |
+| Datos | Tres usuarios de API, dos usuarios de interfaz y un administrador del CMS, todos ficticios |
 
-## Casos
+```sh
+npm ci
+npm run setup
+npm run lint
+npm run build
+npx playwright install chromium
+npm run verify
+```
 
-| ID | Recorrido | Resultado esperado | Resultado |
+En el entorno de revisión se usó un ejecutable Chromium local mediante
+`PLAYWRIGHT_CHROMIUM_EXECUTABLE`, porque la descarga estándar de Playwright
+no devolvía un archivo válido. Esa variable es opcional para otras
+instalaciones. El script valida solo hosts locales, inicia los servicios,
+ejecuta las pruebas y descarta su base. Para API únicamente, ejecutar
+`npm run verify:api` después del build.
+
+## Matriz de casos
+
+| ID | Pasos y datos | Resultado esperado y obtenido | Evidencia |
 | --- | --- | --- | --- |
-| AUTH-01 | Abrir `/` sin sesión. | Ir a `/login` sin mostrar información privada. | Pendiente en esta ejecución. |
-| AUTH-02 | Registrar dos cuentas e iniciar sesión con ambas. | El registro y el acceso abren la aplicación. | Pasó en las dos cuentas. |
-| AUTH-03 | Iniciar sesión con una contraseña incorrecta. | Mostrar un error y no iniciar sesión. | Pasó; el mensaje de Strapi aparece en inglés: `Invalid identifier or password`. |
-| AUTH-04 | Cerrar sesión desde el menú del usuario. | Borrar la sesión y volver a `/login`. | Pasó. |
-| AUTH-05 | Reemplazar el JWT por uno inválido y solicitar canales. | Strapi responde `401`, la sesión se borra y se vuelve a `/login`. | Pasó; se observaron las respuestas `401` y la redirección. |
-| AUTH-06 | Consultar `/api/membresias` sin JWT. | El CMS rechaza el pedido privado. | Pasó; respondió `403`. |
-| COM-01 | Crear una comunidad con la primera cuenta. | La comunidad queda seleccionada, con canal `general` y rol de propietaria. | Pasó desde la interfaz. |
-| COM-02 | Registrar una cuenta que todavía no pertenece a comunidades. | Mostrar el estado vacío y no listar comunidades ajenas. | Pasó; antes de unirse, la lista estaba vacía. |
-| COM-03 | Unirse desde la segunda cuenta con el código de invitación. | Mostrar la comunidad y el rol de miembro. | Pasó desde la interfaz. |
-| COM-04 | Consultar recursos de una comunidad desde una cuenta ajena con sesión válida. | Denegar el acceso y no filtrar datos. | Pasó; una cuenta registrada sin membresía obtuvo `403` en canales, integrantes y mensajes, y su lista propia de membresías quedó vacía. |
-| CAN-01 | Crear un segundo canal y cambiar entre `general` y ese canal. | Actualizar encabezado, lista activa e historial según el canal. | Pasó; el canal vacío mostró su propio estado y `general` conservó su mensaje. |
-| CAN-02 | Cambiar entre dos comunidades con canales distintos. | No conservar canales ni mensajes de otra comunidad. | Pendiente; esta ejecución usó una sola comunidad. |
-| CAN-03 | Comparar las acciones de canales para propietaria y miembro. | Solo permitir administración a quien tenga permiso. | Pasó en la interfaz y en la API; la miembro no vio el control para crear canales y sus intentos de crear un canal o cambiar un rol respondieron `403`. |
-| MEM-01 | Revisar el panel con propietaria y miembro. | Mostrar integrantes y sus roles para la comunidad activa. | Pasó; se vieron los dos roles y las dos cuentas. |
-| MEM-02 | Dar y quitar el rol de administrador desde la cuenta propietaria. | Actualizar la agrupación y las acciones disponibles. | Pasó; el cambio en ambos sentidos se reflejó en el panel. |
-| MSG-01 | Enviar mensajes de 3000 y 3001 caracteres. | Aceptar el máximo definido y rechazar el exceso. | Pasó; el mensaje de 3000 caracteres respondió `201` y el de 3001 respondió `400`. |
-| DATA-01 | Editar datos desde el panel de administración de Strapi y volver a Next.js. | La interfaz refleja los cambios del CMS. | Parcial; cambié el nombre en el panel y la API autenticada devolvió el dato nuevo. No alcancé a comprobar el cambio en una vista de Next.js antes de cerrar el entorno temporal. |
-| DATA-02 | Probar campos opcionales, contenido en el límite y colecciones vacías. | Manejar datos largos y vacíos sin errores bloqueantes. | Parcial; el canal vacío y el límite de mensaje funcionaron. No recorrí todos los campos opcionales. |
-| NET-01 | Detener Strapi mientras se consulta una invitación y se actualizan mensajes. | Informar el error y no presentar una respuesta como exitosa. | Pasó; ambos pedidos mostraron el error de conexión. |
-| UI-01 | Revisar navegación y contenido a 375 × 812, 768 × 900 y 1440 × 900 px. | No desbordar horizontalmente; mantener accesibles navegación y miembros. | Pasó en la versión de trabajo anterior al merge de #38; `document.documentElement.scrollWidth` y `document.body.scrollWidth` coincidieron con el viewport en los tres tamaños. En móvil abrí el selector de comunidades y el diálogo de integrantes. |
-| UI-02 | Revisar carga, error, estado vacío y accesibilidad con teclado. | Mostrar estados claros y permitir recorrer controles con teclado. | Parcial; vi estados de carga, error y canal vacío. No hice el recorrido completo de teclado ni probé el panel de miembros vacío. |
+| AUTH-01 | Abrir / sin JWT. Registrar cuenta ficticia. | Redirige a /login y, tras registro, muestra estado sin comunidades. Pasó. | UI: Sin sesión, registro y estado vacío |
+| AUTH-02 | Acceder con contraseña válida e incorrecta. | Acepta la válida. Rechaza la incorrecta y muestra error en español sin abrir sesión. Pasó. | API autenticación; UI sesión |
+| AUTH-03 | Cerrar sesión e invalidar JWT. | Borra token y usuario, redirige al login; JWT inválido responde 401. Pasó. | API autenticación; UI sesión |
+| AUTH-04 | Consultar membresías sin JWT. | Rechaza acceso privado con 403 del plugin. Pasó. | API autenticación |
+| COM-01 | Crear Alfa/Beta en API y dos comunidades desde UI. | Cada creación produce general y propietario; selección coherente. Pasó. | API creación; UI comunidades |
+| COM-02 | Consultar con cuenta ajena y unirse por invitación. | Lista propia vacía antes de unirse. Invitación válida crea membresía; repetición 409 y código inexistente 404. Pasó. | API invitaciones; UI membresías |
+| COM-03 | Consultar comunidad, canales, miembros y mensajes ajenos. | 403 sin datos ajenos. El listado de comunidades incluye únicamente las propias. Pasó. | API aislamiento |
+| CAN-01 | Cambiar entre dos comunidades con mensajes diferentes. | Encabezado e historial siguen la selección y no mezclan mensajes. Pasó. | UI contextos |
+| CAN-02 | Crear, renombrar y eliminar canal como propietario. | Funciona. Nombre repetido 409, más de 20 caracteres 400, último canal 409. Pasó. | API canales; UI creación |
+| CAN-03 | Intentar administrar canal como miembro. | 403 en API y controles administrativos ausentes en UI. Pasó. | API canales; UI membresías |
+| MEM-01 | Invitar usuario, dar y quitar administrador. | Se actualizan rol y agrupación del panel. Pasó. | API roles; UI roles |
+| MEM-02 | Expulsar miembro y volver a consultar el chat. | DELETE 204 y acceso posterior 403. Propietario no puede salir sin transferir: 409. Pasó. | API revocación |
+| MSG-01 | Enviar texto vacío, 3000 y 3001 caracteres. | Acepta 3000 (201), rechaza vacío y exceso (400). Autor proviene de la sesión aunque el cuerpo indique otro. Pasó. | API mensajes; UI contenido largo |
+| MSG-02 | Abrir canal vacío, enviar texto y cambiar de contexto. | Estado vacío, envío e historial correctos. Fecha desde inválida devuelve 400. Pasó. | API mensajes; UI canales |
+| DATA-01 | Editar practicas en Content Manager, guardar y actualizar la comunidad en Next.js. | La vista cargada muestra editado-cms y conserva el historial del canal. Pasó. | UI CMS |
+| DATA-02 | Comunidades sin imagen opcional y mensajes largos sin espacios. | Iniciales disponibles y contenido sin desbordar a tres tamaños. Pasó. | UI contextos y pantallas |
+| EMPTY-01 | Interceptar respuestas con canales y miembros vacíos. | Textos específicos para cero canales y cero miembros. Pasó con datos simulados. | UI estados controlados |
+| NET-01 | Retrasar y abortar la consulta de canales desde el navegador. | Muestra carga y error de conexión; Actualizar recupera la vista. Pasó con fallo simulado. | UI estados controlados |
+| UI-01 | Medir ancho a 1440, 768 y 375 px con texto largo. | Ancho del documento no excede el viewport. Pasó. | UI pantallas y capturas |
+| UI-02 | Abrir navegación y miembros, usar Tab/Escape y enviar con Enter. | El foco queda dentro del diálogo, Escape cierra y Enter envía. Pasó. | UI teclado |
+| UI-03 | Registrar excepciones JavaScript de la aplicación durante el recorrido. | Sin errores de página bloqueantes. Pasó. | UI sesión, verificación de pageerror |
 
-## Validaciones ejecutadas
+Las pruebas de teclado cubren los recorridos principales y los diálogos
+móviles. No equivalen a una auditoría exhaustiva WCAG ni de todas las
+combinaciones de tecnologías de asistencia. El caso de cero miembros es
+simulado porque una comunidad creada correctamente siempre tiene propietario.
 
-- `npm ci --offline --no-audit --no-fund` — pasó; instaló las dependencias
-  desde la caché local.
-- `npm run lint --workspace=frontend -- src/components/sidebar/app-sidebar.tsx src/components/miembros-panel.tsx src/components/comunidad-view.tsx src/components/home.tsx src/components/canal-chat.tsx` — pasó.
-- `npm run build --workspace=frontend` — pasó; compilación de producción y
-  verificación de TypeScript completas.
-- `npm run build` — pasó después de integrar T-14 y el PR #38; compiló Strapi
-  y el frontend.
-- `curl.exe -sS -o NUL -w 'GET /api/membresias without JWT: HTTP %{http_code}\n' 'http://127.0.0.1:1337/api/membresias'` — respondió HTTP `403`.
-- Con tokens de cuentas de prueba no incluidos en el repositorio, la API respondió `403` a una cuenta sin membresía al consultar canales, integrantes y mensajes; la miembro recibió `403` al intentar crear canales o cambiar roles.
-- La API aceptó un mensaje de 3000 caracteres (`201`) y rechazó uno de 3001 (`400`).
-- Después de editar el nombre de un canal en `/admin`, la consulta autenticada de canales devolvió el nombre editado.
-- `git diff --check` — pasó.
-- No ejecuté `npm test`: el frontend no tiene un runner de pruebas configurado.
+## Resultados de comandos
 
-## Pendientes antes de cerrar
+| Comprobación | Resultado |
+| --- | --- |
+| Instalación desde bloqueo corregido, npm ci | Pasó |
+| npm run lint, todo el frontend | Pasó |
+| npm run build, ambos workspaces | Pasó |
+| Pruebas REST | 8 pruebas contabilizadas: recorrido y 7 subcasos, sin fallos |
+| Pruebas de interfaz | 9 pruebas contabilizadas: recorrido y 8 subcasos, sin fallos |
+| git diff --check | Pasó |
 
-- Probar el cambio entre dos comunidades, confirmar en la interfaz un dato
-  editado desde el CMS y completar la revisión de campos opcionales y
-  navegación por teclado.
-- Revisar los avisos de consola del panel de Strapi y validar el panel de
-  miembros sin integrantes.
-- El arreglo responsive se incluye en T-14. El issue #15 figura cerrado en
-  GitHub; esta rama no modifica su estado.
-- Adjuntar capturas de los recorridos cuando se prepare la entrega.
+## Defectos encontrados y correcciones
 
-La base temporal y las cuentas de prueba se descartaron al terminar. No guardé
-datos de acceso ni secretos en el repositorio.
+| Defecto | Corrección y nueva comprobación |
+| --- | --- |
+| Rutas genéricas de comunidad podían devolver datos ajenos. | Listado limitado a membresías propias y detalle con autorización. API aislamiento pasó. |
+| Instalación no incluía dependencias nativas opcionales para Linux. | Bloqueo regenerado desde un directorio sin dependencias. Instalación y build pasaron. |
+| Datos modificados en CMS no tenían actualización explícita en UI. | Botón Actualizar comunidad recarga el contexto. Caso DATA-01 pasó. |
+| Paneles móviles sin gestión modal de foco. | Diálogos Radix, Tab y Escape comprobados. UI-02 pasó. |
+| Mensajes sin espacios podían ensanchar la vista. | Ajuste de palabras y ancho mínimo cero. UI-01 pasó con el límite de caracteres. |
+| Documentación de template describía todavía un chat ficticio. | T-04 e informe actualizados con cambios y capturas actuales. |
+
+## Capturas
+
+- [Escritorio](assets/community-hub-1440.png)
+- [Tablet](assets/community-hub-768.png)
+- [Teléfono](assets/community-hub-375.png)
+- [Miembros en teléfono](assets/community-hub-miembros-mobile.png)
+- [Template original](assets/template-original.png)
+
+Las capturas contienen únicamente datos ficticios. Los límites funcionales del
+prototipo (polling, historial, sesión local e imágenes opcionales) están en
+[el informe](INFORME-TP2.md). El acceso docente y la exposición en vivo deben
+completarse por el equipo según la organización de la cátedra.

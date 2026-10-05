@@ -1,10 +1,11 @@
 "use client"
 
 import { useState } from "react"
-import { UserPlus, Users } from "lucide-react"
+import { RefreshCw, UserPlus, Users } from "lucide-react"
 
 import { codigoDeInvitacion, type Canal, type Comunidad, type RolMembresia } from "@/lib/comunidades"
-import { cn } from "@/lib/utils"
+import { useMobile } from "@/lib/use-mobile"
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog"
 import { CanalChat } from "@/components/canal-chat"
 import { MiembrosPanel } from "@/components/miembros-panel"
 import { ComunidadIcono } from "@/components/sidebar/comunidad-icono"
@@ -18,9 +19,11 @@ type Props = {
   rol: RolMembresia | undefined
   estado: "cargando" | "listo" | "error"
   error: string
+  onActualizar: () => void
 }
 
-export function ComunidadView({ comunidad, canal, rol, estado, error }: Props) {
+export function ComunidadView({ comunidad, canal, rol, estado, error, onActualizar }: Props) {
+  const mobile = useMobile()
   const [invitacion, setInvitacion] = useState("")
   const [errorInvitacion, setErrorInvitacion] = useState("")
   const [cargandoInvitacion, setCargandoInvitacion] = useState(false)
@@ -35,7 +38,10 @@ export function ComunidadView({ comunidad, canal, rol, estado, error }: Props) {
           <CardTitle className="truncate">{comunidad.nombre}</CardTitle>
           <CardDescription className="truncate">{canal ? `# ${canal.nombre}` : "Comunidad"}</CardDescription>
         </div>
-        <div className="flex flex-grow items-center justify-end gap-1">
+        <div className="flex min-w-0 flex-grow items-center justify-end gap-1">
+          <Button variant="ghost" size="icon" aria-label="Actualizar comunidad" onClick={onActualizar}>
+            <RefreshCw aria-hidden="true" />
+          </Button>
           {invitacion ? (
             <span className="truncate rounded-md bg-secondary px-3 py-1 font-mono tracking-widest select-all">
               {invitacion}
@@ -85,7 +91,9 @@ export function ComunidadView({ comunidad, canal, rol, estado, error }: Props) {
             <CanalChat key={canal.documentId} canal={canal} />
           ) : (
             <div className="flex flex-grow items-center justify-center p-6 text-center text-sm text-muted-foreground">
-              {estado === "cargando" ? (
+              {error ? (
+                <p role="alert" className="text-destructive">{error}</p>
+              ) : estado === "cargando" ? (
                 <p role="status">Cargando canales...</p>
               ) : estado === "error" ? (
                 <p role="alert" className="text-destructive">
@@ -98,23 +106,22 @@ export function ComunidadView({ comunidad, canal, rol, estado, error }: Props) {
           )}
         </div>
 
-        {/* En mobile el panel de miembros es un cajón que entra desde la derecha */}
-        {miembrosAbiertos && (
-          <div
-            className="fixed inset-0 z-30 bg-black/40 md:hidden"
-            aria-hidden="true"
-            onClick={() => setMiembrosAbiertos(false)}
-          />
-        )}
-        <MiembrosPanel
+        {!mobile && <MiembrosPanel
           comunidadDocumentId={comunidad.documentId}
           esPropietario={rol === "propietario"}
-          onCerrar={() => setMiembrosAbiertos(false)}
-          className={cn(
-            "max-md:fixed max-md:inset-y-0 max-md:right-0 max-md:z-40 max-md:bg-background",
-            !miembrosAbiertos && "max-md:hidden"
-          )}
-        />
+          className="max-md:hidden"
+        />}
+        <Dialog open={mobile && miembrosAbiertos} onOpenChange={setMiembrosAbiertos}>
+          <DialogContent>
+            <DialogTitle>Integrantes de {comunidad.nombre}</DialogTitle>
+            <DialogDescription>Miembros y roles de la comunidad activa.</DialogDescription>
+            <MiembrosPanel
+              comunidadDocumentId={comunidad.documentId}
+              esPropietario={rol === "propietario"}
+              className="max-h-[70dvh] w-full border-0"
+            />
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   )
