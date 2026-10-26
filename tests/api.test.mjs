@@ -1,6 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { randomBytes } from 'node:crypto';
+import path from 'node:path';
+import Database from 'better-sqlite3';
 
 // Ejecutar contra una instancia local y descartable. Las cuentas no se escriben en disco.
 const base = process.env.TEST_API_URL ?? 'http://127.0.0.1:1337';
@@ -21,6 +23,41 @@ async function register(name) {
   return { ...result.body, credentials };
 }
 
+function openVerificationDatabase() {
+  const relative = process.env.DATABASE_FILENAME ?? '.tmp/data.db';
+  const absolute = path.resolve('apps/backend', relative);
+  return new Database(absolute, { readonly: false });
+}
+
+function readResetToken(email) {
+  const db = openVerificationDatabase();
+  try {
+    return db
+      .prepare('SELECT reset_password_token AS token FROM up_users WHERE email = ?')
+      .get(email.toLowerCase());
+  } finally {
+    db.close();
+  }
+}
+
+function expireResetToken(email) {
+  const db = openVerificationDatabase();
+  try {
+    const row = db
+      .prepare('SELECT reset_password_token AS token FROM up_users WHERE email = ?')
+      .get(email.toLowerCase());
+    if (!row?.token || typeof row.token !== 'string') return null;
+    const [, randomPart = ''] = row.token.split('.');
+    const expiredToken = `${(Date.now() - 60_000).toString(36)}.${randomPart}`;
+    db.prepare(
+      'UPDATE up_users SET reset_password_token = ? WHERE email = ?'
+    ).run(expiredToken, email.toLowerCase());
+    return expiredToken;
+  } finally {
+    db.close();
+  }
+}
+
 test('Recorrido completo: autenticación, comunidades, canales, membresías y mensajes', async (t) => {
   const owner = await register('propietario');
   const member = await register('miembro');
@@ -32,6 +69,52 @@ test('Recorrido completo: autenticación, comunidades, canales, membresías y me
     assert.equal((await request('/api/auth/local', null, 'POST', { identifier: owner.credentials.email, password: 'incorrecta' })).status, 400);
     assert.equal((await request('/api/membresias')).status, 403);
     assert.equal((await request('/api/membresias', 'token-invalido')).status, 401);
+  });
+
+  test('Recuperación de contraseña: enlace de un solo uso y con vencimiento', async () => {
+    const account = await register('recuperacion');
+    const newPassword = randomBytes(16).toString('hex');
+
+    const forgot = await request('/api/auth/forgot-password-resend', null, 'POST', {
+      email: account.credentials.email,
+    });
+    assert.equal(forgot.status, 200);
+    assert.equal(forgot.body.ok, true);
+
+    const firstToken = readResetToken(account.credentials.email);
+    assert.equal(typeof firstToken?.token, 'string');
+    assert.ok(firstToken.token.length > 10);
+
+    const reset = await request('/api/auth/reset-password-resend', null, 'POST', {
+      code: firstToken.token,
+      password: newPassword,
+      passwordConfirmation: newPassword,
+    });
+    assert.equal(reset.status, 200);
+    assert.equal((await request('/api/auth/local', null, 'POST', { identifier: account.credentials.email, password: newPassword })).status, 200);
+
+    const secondPassword = randomBytes(16).toString('hex');
+    const reuse = await request('/api/auth/reset-password-resend', null, 'POST', {
+      code: firstToken.token,
+      password: secondPassword,
+      passwordConfirmation: secondPassword,
+    });
+    assert.equal(reuse.status, 400);
+
+    const forgotExpired = await request('/api/auth/forgot-password-resend', null, 'POST', {
+      email: account.credentials.email,
+    });
+    assert.equal(forgotExpired.status, 200);
+    const expiredToken = expireResetToken(account.credentials.email);
+    assert.equal(typeof expiredToken, 'string');
+
+    const expiredPassword = randomBytes(16).toString('hex');
+    const expiredReset = await request('/api/auth/reset-password-resend', null, 'POST', {
+      code: expiredToken,
+      password: expiredPassword,
+      passwordConfirmation: expiredPassword,
+    });
+    assert.equal(expiredReset.status, 400);
   });
   await t.test('Estado vacío y creación de dos comunidades con canal y propietario', async () => {
     assert.deepEqual((await request('/api/membresias', owner.jwt)).body.data, []);

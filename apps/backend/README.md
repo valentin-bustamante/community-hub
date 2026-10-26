@@ -45,6 +45,13 @@ Todos requieren el header `Authorization: Bearer <jwt>`. El token se obtiene con
 | `GET /api/mensajes?canal=:id` | Devuelve los últimos 50 mensajes; con `&desde=<fecha>`, solo los posteriores | Miembros |
 | `POST /api/mensajes` | Envía un mensaje al canal | Miembros |
 
+Recuperación de cuenta:
+
+| Método y ruta | Qué hace | Quién puede |
+| --- | --- | --- |
+| `POST /api/auth/forgot-password-resend` | Genera el enlace de recuperación, lo envía por mail con Resend y define su vencimiento | Público |
+| `POST /api/auth/reset-password-resend` | Cambia la contraseña con el `code` del enlace y anula el token | Público |
+
 Los `:id` son el `documentId` de cada registro.
 
 Ejemplos de cuerpo:
@@ -110,3 +117,10 @@ Content Manager puede editar datos sin pasar por los controladores REST del
 dominio: al usarlo, conservar relaciones válidas, un propietario y al menos un
 canal por comunidad. La creación desde Content Manager no ejecuta la creación
 automática de canal y membresía del endpoint de comunidades.
+
+## Variables de entorno para recuperación por mail
+
+- `RESEND_API_KEY`: clave de API de Resend.
+- `RESEND_FROM_EMAIL`: remitente verificado en Resend.
+- `RESET_PASSWORD_URL`: URL base del formulario de recuperación; se envía con `?code=<token>`.
+- `RESET_PASSWORD_TOKEN_TTL_MINUTES`: minutos de vigencia del enlace (60 por defecto).

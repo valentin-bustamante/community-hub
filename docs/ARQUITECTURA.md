@@ -75,13 +75,16 @@ Los contratos, cuerpos de las solicitudes y estados HTTP están en el
   entre consultas. No se usa WebSocket.
 - El JWT se conserva en `localStorage`; una respuesta 401 elimina la sesión.
   La expiración se detecta al consultar la API.
+- La recuperación de contraseña usa `POST /api/auth/forgot-password-resend` y
+  `POST /api/auth/reset-password-resend`, con envío de enlace por Resend,
+  vencimiento configurable y token de un solo uso.
 - El icono del modelo Comunidad es opcional y la interfaz muestra iniciales.
 - Content Manager opera por fuera de los controladores REST del dominio. Las
   ediciones manuales deben conservar relaciones y reglas; crear una comunidad
   allí no crea automáticamente canal y propietario. Usar **Actualizar comunidad**
   después de editar datos del CMS.
 - Se documenta y verifica una instalación local. No se configura un servicio
-  de producción, recuperación de contraseña por correo ni sincronización de bases.
+  de producción ni sincronización de bases.
 
 ## Cambiar una funcionalidad
 
